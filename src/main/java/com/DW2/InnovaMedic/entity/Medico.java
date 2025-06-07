@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Medicos extends Usuario {
+public class Medico extends Usuario {
     @Column(name = "ESPECIALIDAD", nullable = false)
     private String especialidad;
 

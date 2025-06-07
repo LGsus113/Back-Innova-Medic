@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Entity
@@ -21,15 +20,19 @@ public class DisponibilidadMedica {
 
     @ManyToOne
     @JoinColumn(name = "ID_MEDICO", nullable = false)
-    private Medicos medico;
+    private Medico medico;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "DIA_SEMANA", nullable = false)
-    private DayOfWeek diaSemana;
+    private DiaSemana diaSemana;
 
     @Column(name = "HORA_INICIO", nullable = false)
     private LocalTime horaInicio;
 
     @Column(name = "HORA_FIN", nullable = false)
     private LocalTime horaFin;
+
+    private enum DiaSemana {
+        Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo
+    }
 }

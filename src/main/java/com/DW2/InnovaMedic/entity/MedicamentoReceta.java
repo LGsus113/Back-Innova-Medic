@@ -18,7 +18,7 @@ public class MedicamentoReceta {
 
     @ManyToOne
     @JoinColumn(name = "ID_RECETA", nullable = false)
-    private Recetas receta;
+    private Receta receta;
 
     @Column(name = "MEDICAMENTO", columnDefinition = "TEXT")
     private String medicamento;

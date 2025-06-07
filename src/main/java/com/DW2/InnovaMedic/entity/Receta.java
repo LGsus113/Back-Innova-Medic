@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Recetas {
+public class Receta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_RECETA")
@@ -22,7 +22,7 @@ public class Recetas {
 
     @OneToOne
     @JoinColumn(name = "ID_CITA", nullable = false, unique = true)
-    private Citas cita;
+    private Cita cita;
 
     @Column(name = "INSTRUCCIONES_ADICIONALES", columnDefinition = "TEXT")
     private String instruccionesAdicionales;

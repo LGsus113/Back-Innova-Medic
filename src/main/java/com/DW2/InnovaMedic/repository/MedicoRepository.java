@@ -1,9 +1,9 @@
 package com.DW2.InnovaMedic.repository;
 
-import com.DW2.InnovaMedic.entity.Medicos;
+import com.DW2.InnovaMedic.entity.Medico;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MedicoRepository extends JpaRepository<Medicos, Integer> {
+public interface MedicoRepository extends JpaRepository<Medico, Integer> {
 }

@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.UsuarioDTO;
-import com.DW2.InnovaMedic.entity.Medicos;
+import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.entity.Paciente;
 import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
@@ -35,7 +35,7 @@ public class MaintenanceUsuarioImpl implements MaintanceUsuario {
     private String obtenerRol(Usuario usuario) {
         if (usuario instanceof Paciente) {
             return "Paciente";
-        } else if (usuario instanceof Medicos) {
+        } else if (usuario instanceof Medico) {
             return "Medico";
         } else {
             return "Desconocido";

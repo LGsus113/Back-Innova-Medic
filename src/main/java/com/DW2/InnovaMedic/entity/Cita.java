@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "CITAS", uniqueConstraints = @UniqueConstraint(columnNames = {"ID_MEDICO", "FECHA", "HORA"}))
+@Table(name = "CITAS", uniqueConstraints = @UniqueConstraint(columnNames = {"id_medico", "fecha", "hora"}))
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Citas {
+public class Cita {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_CITAS")
@@ -21,7 +21,7 @@ public class Citas {
 
     @ManyToOne
     @JoinColumn(name = "ID_MEDICO", nullable = false)
-    private Medicos medico;
+    private Medico medico;
 
     @ManyToOne
     @JoinColumn(name = "ID_PACIENTE", nullable = false)

@@ -1,6 +1,9 @@
 package com.DW2.InnovaMedic.service.impl;
 
+import com.DW2.InnovaMedic.dto.CitaDTO;
+import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Paciente;
+import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.PacienteRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
@@ -9,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -19,6 +24,9 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
     @Autowired
     PacienteRepository pacienteRepository;
 
+    @Autowired
+    CitaRepository citaRepository;
+
     @Override
     public void registrarPaciente(Paciente paciente) throws Exception {
         usuarioRepository.findByEmail(paciente.getEmail())
@@ -27,5 +35,17 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
                 });
 
         pacienteRepository.save(paciente);
+    }
+
+    @Override
+    public List<CitaDTO> obtenerCitasPaciente(Integer id) throws Exception {
+        if (!pacienteRepository.existsById(id)) {
+            throw  new IllegalArgumentException("Paciente con Id " + id + " no existe");
+        }
+
+        List<Cita> citas = citaRepository.findByPaciente_IdUsuario(id);
+        return citas.stream()
+                .map(CitaDTO::fromEntity)
+                .toList();
     }
 }

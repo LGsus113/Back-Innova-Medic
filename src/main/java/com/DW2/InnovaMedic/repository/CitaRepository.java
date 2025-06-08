@@ -1,6 +1,8 @@
 package com.DW2.InnovaMedic.repository;
 
 import com.DW2.InnovaMedic.entity.Cita;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +12,7 @@ import java.sql.Time;
 import java.util.List;
 
 public interface CitaRepository extends JpaRepository<Cita, Integer> {
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     @Procedure(procedureName = "registrar_cita_con_receta_vacia", outputParameterName = "p_id_cita_generada")
     Integer registrar_cita_con_receta_vacia(
             @Param("p_id_medico") Integer idMedico,
@@ -19,5 +22,9 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
             @Param("p_tratamiento") String tratamiento
     );
 
+    @Cacheable(value = "citasPaciente")
     List<Cita> findByPaciente_IdUsuario(Integer idUsuarioPaciente);
+
+    @Cacheable(value = "citasMedico")
+    List<Cita> findByMedico_IdUsuario(Integer idUsuarioMedico);
 }

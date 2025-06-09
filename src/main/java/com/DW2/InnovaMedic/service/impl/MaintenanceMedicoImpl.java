@@ -3,8 +3,10 @@ package com.DW2.InnovaMedic.service.impl;
 import com.DW2.InnovaMedic.dto.CitaDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Medico;
+import com.DW2.InnovaMedic.entity.Receta;
 import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.MedicoRepository;
+import com.DW2.InnovaMedic.repository.RecetaRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import jakarta.transaction.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -43,9 +46,10 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
             throw new IllegalArgumentException("Medico con Id " + id + " no existe");
         }
 
-        List<Cita> citas = citaRepository.findByMedico_IdUsuario(id);
+        List<Cita> citas = citaRepository.findByMedicoWithRecetasAndMedicamentos(id);
+
         return citas.stream()
-                .map(CitaDTO::fromEntity)
+                .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
                 .toList();
     }
 }

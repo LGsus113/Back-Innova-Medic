@@ -46,6 +46,9 @@ public class Cita {
     @Column(name = "ESTADO", nullable = false)
     private Estado estado = Estado.Pendiente;
 
+    @OneToOne(mappedBy = "cita", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Receta receta;
+
     public enum Estado {
         Pendiente, Confirmada, Cancelada, Finalizada
     }

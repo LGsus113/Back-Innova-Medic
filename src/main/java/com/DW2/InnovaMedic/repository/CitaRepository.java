@@ -4,6 +4,7 @@ import com.DW2.InnovaMedic.entity.Cita;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 
@@ -23,8 +24,20 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
     );
 
     @Cacheable(value = "citasPaciente")
-    List<Cita> findByPaciente_IdUsuario(Integer idUsuarioPaciente);
+    @Query("""
+            SELECT c FROM Cita c
+            LEFT JOIN FETCH c.receta r
+            LEFT JOIN FETCH r.medicamentos
+            WHERE c.paciente.idUsuario = :idPaciente
+    """)
+    List<Cita> findByPacienteWithRecetasAndMedicamentos(@Param("idPaciente") Integer idPaciente);
 
     @Cacheable(value = "citasMedico")
-    List<Cita> findByMedico_IdUsuario(Integer idUsuarioMedico);
+    @Query("""
+            SELECT c FROM Cita c
+            LEFT JOIN FETCH c.receta r
+            LEFT JOIN FETCH r.medicamentos
+            WHERE c.medico.idUsuario = :idMedico
+    """)
+    List<Cita> findByMedicoWithRecetasAndMedicamentos(@Param("idMedico") Integer idMedico);
 }

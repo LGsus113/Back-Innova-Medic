@@ -20,11 +20,21 @@ public class MaintenanceUsuarioImpl implements MaintanceUsuario {
 
     @Override
     public UsuarioDTO validarUsuario(String email, String password) throws Exception {
+        if (email == null || email.isBlank() || password == null || password.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email y passwor son obligatorios.");
+        }
+
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario no existe"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Credenciales invalidas",
+                        null));
 
         if (!usuario.getContrasenia().equals(password)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña es incorrecta");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Credenciales invalidas",
+                    null);
         }
 
         String rol = obtenerRol(usuario);

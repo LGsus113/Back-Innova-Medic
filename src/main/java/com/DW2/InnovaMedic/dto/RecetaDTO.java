@@ -12,15 +12,17 @@ public record RecetaDTO(
         LocalDate fecha,
         List<MedicamentoRecetaDTO> medicamentos
 ) {
-    public static RecetaDTO fromEntity (Receta receta) {
+    public static RecetaDTO fromEntity(Receta receta) {
         return new RecetaDTO(
                 receta.getIdReceta(),
                 receta.getInstruccionesAdicionales(),
                 receta.getFirmaMedico(),
                 receta.getFecha(),
-                receta.getMedicamentos().stream()
-                        .map(MedicamentoRecetaDTO::fromEntity)
-                        .toList()
+                receta.getMedicamentos() == null
+                        ? List.of()
+                        : receta.getMedicamentos().stream()
+                            .map(MedicamentoRecetaDTO::fromEntity)
+                            .toList()
         );
     }
 }

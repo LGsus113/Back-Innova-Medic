@@ -7,11 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 
+@Repository
 public interface CitaRepository extends JpaRepository<Cita, Integer> {
     @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     @Procedure(procedureName = "registrar_cita_con_receta_vacia", outputParameterName = "p_id_cita_generada")

@@ -3,7 +3,6 @@ package com.DW2.InnovaMedic.service.impl;
 import com.DW2.InnovaMedic.dto.CitaDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Paciente;
-import com.DW2.InnovaMedic.entity.Receta;
 import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.PacienteRepository;
 import com.DW2.InnovaMedic.repository.RecetaRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional

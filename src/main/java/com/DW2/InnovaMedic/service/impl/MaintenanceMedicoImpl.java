@@ -29,7 +29,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
     @Override
     public void registrarMedicos(Medico medico) throws Exception {
-        usuarioRepository.findByEmail(medico.getEmail())
+        usuarioRepository.findOneByEmail(medico.getEmail())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + medico.getEmail());
                 });

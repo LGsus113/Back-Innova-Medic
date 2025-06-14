@@ -5,7 +5,6 @@ import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Paciente;
 import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.PacienteRepository;
-import com.DW2.InnovaMedic.repository.RecetaRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
 import jakarta.transaction.Transactional;
@@ -28,12 +27,9 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
     @Autowired
     CitaRepository citaRepository;
 
-    @Autowired
-    RecetaRepository recetaRepository;
-
     @Override
     public void registrarPaciente(Paciente paciente) throws Exception {
-        usuarioRepository.findByEmail(paciente.getEmail())
+        usuarioRepository.findOneByEmail(paciente.getEmail())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + paciente.getEmail());
                 });
@@ -47,10 +43,9 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
             throw  new IllegalArgumentException("Paciente con Id " + id + " no existe");
         }
 
-        List<Cita> citas = citaRepository.findByPacienteWithRecetasAndMedicamentos(id);
-
+        List<Cita> citas = citaRepository.findByPaciente_IdUsuario(id);
         return citas.stream()
-                .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
+                .map(CitaDTO::fromEntity)
                 .toList();
     }
 }

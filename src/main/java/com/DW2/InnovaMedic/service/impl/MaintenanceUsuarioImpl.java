@@ -20,7 +20,7 @@ public class MaintenanceUsuarioImpl implements MaintanceUsuario {
 
     @Override
     public UsuarioDTO validarUsuario(String email, String password) throws Exception {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        Usuario usuario = usuarioRepository.findOneByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario no existe"));
 
         if (!usuario.getContrasenia().equals(password)) {

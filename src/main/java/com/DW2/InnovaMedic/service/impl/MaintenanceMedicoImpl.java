@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
@@ -28,17 +27,13 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     @Autowired
     CitaRepository citaRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
     @Override
     public void registrarMedicos(Medico medico) throws Exception {
-        usuarioRepository.findByEmail(medico.getEmail())
+        usuarioRepository.findOneByEmail(medico.getEmail())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + medico.getEmail());
                 });
 
-        medico.setContrasenia(passwordEncoder.encode(medico.getContrasenia()));
         medicoRepository.save(medico);
     }
 

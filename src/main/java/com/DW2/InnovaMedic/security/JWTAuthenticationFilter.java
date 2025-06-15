@@ -1,6 +1,10 @@
 package com.DW2.InnovaMedic.security;
 
+import com.DW2.InnovaMedic.dto.UsuarioDTO;
 import com.DW2.InnovaMedic.entity.Auth;
+import com.DW2.InnovaMedic.entity.Medico;
+import com.DW2.InnovaMedic.entity.Paciente;
+import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +33,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Auth auth = new Auth();
 
         try {
-            auth = new ObjectMapper().readValue(request.getReader(), Auth.class );
+            auth = new ObjectMapper().readValue(request.getReader(), Auth.class);
         } catch (StreamReadException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -54,13 +58,39 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
 
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
+        Usuario usuario = userDetails.getUsuario();
 
         String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername());
 
-        response.addHeader("Authorization", "Bearer " + token);
+        String rol = "Desconocido";
+        if (usuario instanceof Paciente) {
+            rol = "Paciente";
+        } else if (usuario instanceof Medico) {
+            rol = "Medico";
+        }
 
-        response.getWriter().flush();
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+                usuario.getIdUsuario(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                rol
+        );
 
-        super.successfulAuthentication(request, response, chain, authResult);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String jsonResponse = """
+                {
+                    "token": "%s",
+                    "usuario": {
+                        "idUsuario": %d,
+                        "nombre": "%s",
+                        "apellido": "%s",
+                        "rol": "%s"
+                    }
+                }
+                """.formatted(token, usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
+
+        response.getWriter().write(jsonResponse);
     }
 }

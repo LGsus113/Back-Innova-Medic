@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/cita")
+@RequestMapping("/api/cita")
 public class CitaController {
     @Autowired
     MaintenanceCita maintenanceCita;

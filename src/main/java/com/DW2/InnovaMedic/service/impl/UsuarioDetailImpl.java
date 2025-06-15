@@ -10,7 +10,6 @@ import java.util.Collections;
 
 @AllArgsConstructor
 public class UsuarioDetailImpl implements UserDetails {
-
     private final Usuario usuario;
 
     @Override
@@ -28,7 +27,11 @@ public class UsuarioDetailImpl implements UserDetails {
         return usuario.getEmail();
     }
 
-    public String getUser(){
+    public String getUser() {
         return usuario.getNombre();
+    }
+
+    public Usuario getUsuario() {
+        return this.usuario;
     }
 }

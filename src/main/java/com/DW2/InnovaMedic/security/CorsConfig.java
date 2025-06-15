@@ -16,12 +16,12 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
 
                 registry.addMapping("/login")
-                        .allowedOrigins("http://localhost:puerto del front causa/")
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("*")
                         .exposedHeaders("*");
 
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:puerto del front causa/")
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("*");
 
             }

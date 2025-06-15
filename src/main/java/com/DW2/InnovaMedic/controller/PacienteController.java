@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/usuarios/pacientes")
+@RequestMapping("/api/pacientes")
 public class PacienteController {
     @Autowired
     MaintenancePaciente maintenancePaciente;
@@ -54,12 +54,14 @@ public class PacienteController {
     }
 
     @PostMapping("/registrar")
-    public String registrarPaciente(@RequestBody Paciente paciente) {
+    public ResponseEntity<?> registrarPaciente(@RequestBody Paciente paciente) {
         try {
             maintenancePaciente.registrarPaciente(paciente);
-            return "Paciente registrado con exito";
+            return ResponseEntity.ok(Map.of("message", "Usuario registrado con exito"));
         } catch (Exception e) {
-            return "Hubo error al registrar usuario: " + e.getMessage();
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("errorMsg", "Hubo error al registrar usuario: " + e.getMessage()));
         }
     }
 }

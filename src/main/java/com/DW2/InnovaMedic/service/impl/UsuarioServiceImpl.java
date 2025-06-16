@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class UsuarioServiceImpl implements UserDetailsService{
 
     @Autowired
-    private UsuarioRepository repo;
+    UsuarioRepository repo;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

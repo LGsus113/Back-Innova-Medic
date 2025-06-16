@@ -2,52 +2,63 @@ package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.ActionCitaMedicoDTO;
 import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.entity.Cita;
-import com.DW2.InnovaMedic.entity.MedicamentoReceta;
-import com.DW2.InnovaMedic.entity.Receta;
-import com.DW2.InnovaMedic.repository.CitaRepository;
-import com.DW2.InnovaMedic.repository.MedicamentoRecetaRepository;
-import com.DW2.InnovaMedic.repository.RecetaRepository;
+import com.DW2.InnovaMedic.entity.*;
+import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class MaintenanceCitaImpl implements MaintenanceCita {
-    @Autowired
-    CitaRepository citaRepository;
-    
-    @Autowired
-    RecetaRepository recetaRepository;
-
-    @Autowired
-    MedicamentoRecetaRepository medicamentoRecetaRepository;
+    private final MedicoRepository medicoRepository;
+    private final PacienteRepository pacienteRepository;
+    private final CitaRepository citaRepository;
+    private final RecetaRepository recetaRepository;
+    private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
     @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception {
         if (citaRecetaVaciaDTO.fecha() == null || citaRecetaVaciaDTO.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
         }
 
-        Date fecha = Date.valueOf(citaRecetaVaciaDTO.fecha());
-        Time hora = Time.valueOf(citaRecetaVaciaDTO.hora());
+        Medico medico = medicoRepository.findById(citaRecetaVaciaDTO.idMedico())
+                .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
 
-        return citaRepository.registrar_cita_con_receta_vacia(
-                citaRecetaVaciaDTO.idMedico(),
-                citaRecetaVaciaDTO.idPaciente(),
-                fecha,
-                hora,
-                citaRecetaVaciaDTO.tratamiento()
-        );
+        Paciente paciente = pacienteRepository.findById(citaRecetaVaciaDTO.idPaciente())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+
+        Cita cita = new Cita();
+        cita.setMedico(medico);
+        cita.setPaciente(paciente);
+        cita.setFecha(citaRecetaVaciaDTO.fecha());
+        cita.setHora(citaRecetaVaciaDTO.hora());
+        cita.setTratamiento(citaRecetaVaciaDTO.tratamiento());
+        cita.setNotasMedicas("aun no detallado");
+        cita.setDiagnostico("aun no detallado");
+        cita.setEstado(Cita.Estado.Pendiente);
+
+        Cita citaGuardada = citaRepository.save(cita);
+
+        Receta receta = new Receta();
+        receta.setCita(citaGuardada);
+        receta.setFecha(citaRecetaVaciaDTO.fecha());
+        receta.setInstruccionesAdicionales("aun no detallado");
+        receta.setFirmaMedico("aun no detallado");
+
+        recetaRepository.save(receta);
+
+        return citaGuardada.getIdCitas();
     }
 
     private void validarTransicionEstado(Cita.Estado estadoActual, Cita.Estado nuevoEstado) {
@@ -82,6 +93,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
         if (nuevoEstado == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
@@ -96,7 +108,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         validarTransicionEstado(cita.getEstado(), nuevoEstado);
 
         cita.setEstado(nuevoEstado);
-        citaRepository.save(cita);
 
         return "Estado de la cita actualizado correctamente a: " + nuevoEstado;
     }
@@ -104,16 +115,16 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private void actualizarInformacionCita(Integer idCita, String notasMedicas, String diagnostico) {
         Cita cita = citaRepository.findById(idCita)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cita " + idCita + " no existe"));
-        
+
         cita.setNotasMedicas(notasMedicas);
         cita.setDiagnostico(diagnostico);
         citaRepository.save(cita);
     }
-    
+
     private void actualizarReceta(Integer idCita, String instruccionesAdicionales, String firmaMedico) {
         Receta receta = recetaRepository.findByCita_IdCitas(idCita)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La receta " + idCita + " no existe"));
-        
+
         receta.setInstruccionesAdicionales(instruccionesAdicionales);
         receta.setFirmaMedico(firmaMedico);
         recetaRepository.save(receta);
@@ -143,9 +154,13 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         }
     }
 
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
+
         actualizarReceta(idCita, request.notasMedicas(), nombreMedico);
+
         medicamentosReceta(idCita, request.medicamentosList());
     }
 }

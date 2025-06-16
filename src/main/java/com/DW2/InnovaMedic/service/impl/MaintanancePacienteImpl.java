@@ -9,7 +9,8 @@ import com.DW2.InnovaMedic.repository.PacienteRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,19 +19,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class MaintanancePacienteImpl implements MaintenancePaciente {
-    @Autowired
-    UsuarioRepository usuarioRepository;
-
-    @Autowired
-    PacienteRepository pacienteRepository;
-
-    @Autowired
-    CitaRepository citaRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final UsuarioRepository usuarioRepository;
+    private final PacienteRepository pacienteRepository;
+    private final CitaRepository citaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void registrarPaciente(PacienteRegistroDTO pacienteRegistroDTO) throws Exception {
@@ -55,6 +50,7 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
     }
 
     @Override
+    @Cacheable(value = "citasPaciente")
     public List<CitaDTO> obtenerCitasPaciente(Integer id) throws Exception {
         if (!pacienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Paciente con Id " + id + " no existe");

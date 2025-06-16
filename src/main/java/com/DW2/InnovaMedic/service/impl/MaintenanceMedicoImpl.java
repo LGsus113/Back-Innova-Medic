@@ -1,6 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.CitaDTO;
+import com.DW2.InnovaMedic.dto.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.repository.CitaRepository;
@@ -32,13 +33,22 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public void registrarMedicos(Medico medico) throws Exception {
-        usuarioRepository.findOneByEmail(medico.getEmail())
+    public void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) throws Exception {
+        usuarioRepository.findOneByEmail(medicoRegistroDTO.email())
                 .ifPresent(u -> {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + medico.getEmail());
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + medicoRegistroDTO.email());
                 });
 
-        medico.setContrasenia(passwordEncoder.encode(medico.getContrasenia()));
+        Medico medico = new Medico();
+        medico.setNombre(medicoRegistroDTO.nombre());
+        medico.setApellido(medicoRegistroDTO.apellido());
+        medico.setSexo(medicoRegistroDTO.sexo());
+        medico.setTelefono(medicoRegistroDTO.telefono());
+        medico.setEmail(medicoRegistroDTO.email());
+        medico.setContrasenia(passwordEncoder.encode(medicoRegistroDTO.contrasenia()));
+        medico.setEspecialidad(medicoRegistroDTO.especialidad());
+        medico.setNumeroColegiado(medicoRegistroDTO.numeroColegiado());
+        medico.setCodigoHospital(medicoRegistroDTO.codigoHospital());
 
         medicoRepository.save(medico);
     }

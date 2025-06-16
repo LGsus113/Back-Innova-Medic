@@ -1,6 +1,7 @@
 package com.DW2.InnovaMedic.controller;
 
 import com.DW2.InnovaMedic.dto.CitaDTO;
+import com.DW2.InnovaMedic.dto.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +55,9 @@ public class MedicoController {
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrarMedico(@RequestBody Medico medico) {
+    public ResponseEntity<?> registrarMedico(@RequestBody MedicoRegistroDTO medicoRegistroDTO) {
         try {
-            maintenanceMedico.registrarMedicos(medico);
+            maintenanceMedico.registrarMedicos(medicoRegistroDTO);
             return ResponseEntity.ok(Map.of("message", "Usuario registrado con exito"));
         } catch (Exception e) {
             return ResponseEntity

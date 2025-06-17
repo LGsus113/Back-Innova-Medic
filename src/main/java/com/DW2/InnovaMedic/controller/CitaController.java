@@ -2,14 +2,19 @@ package com.DW2.InnovaMedic.controller;
 
 import com.DW2.InnovaMedic.dto.ActualizarCitaCompletaDTO;
 import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.SlotDTO;
+import com.DW2.InnovaMedic.dto.SlotRequestDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
+import com.DW2.InnovaMedic.service.MaintenanceDisponibilidadMedica;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,6 +22,52 @@ import java.util.Map;
 public class CitaController {
     @Autowired
     MaintenanceCita maintenanceCita;
+
+    @Autowired
+    MaintenanceDisponibilidadMedica maintenanceDisponibilidadMedica;
+
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<?> obtenerSlotsDisponibles(
+            @RequestParam("idMedico") Integer idMedico,
+            @RequestParam("fechaInicio") String fechaInicioStr,
+            @RequestParam("fechaFin") String fechaFinStr) {
+        try {
+            LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+            LocalDate fechaFin = LocalDate.parse(fechaFinStr);
+
+            SlotRequestDTO slotRequestDTO = new SlotRequestDTO(idMedico, fechaInicio, fechaFin);
+
+            List<SlotDTO> slots = maintenanceDisponibilidadMedica.obtenerSlotsDisponibles(slotRequestDTO);
+
+            if (slots.isEmpty()) {
+                return ResponseEntity.ok().body(
+                        Map.of(
+                                "status", HttpStatus.OK.value(),
+                                "message", "No existen slots disponibles"
+                        )
+                );
+            }
+
+            return ResponseEntity.ok(slots);
+
+        } catch (IllegalArgumentException ie) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of(
+                            "status", HttpStatus.NOT_FOUND.value(),
+                            "error", "Problemas encontrados.",
+                            "message", ie.getMessage()
+                    )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(
+                    Map.of(
+                            "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            "error", "Error interno al buscar citas",
+                            "message", "Error encontrado"
+                    )
+            );
+        }
+    }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarCitaRecetaVacia(@RequestBody CitaRecetaVaciaDTO citaRecetaVaciaDTO) {

@@ -26,7 +26,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
     public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception {
         if (citaRecetaVaciaDTO.fecha() == null || citaRecetaVaciaDTO.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
@@ -93,7 +93,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
     public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
         if (nuevoEstado == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
@@ -155,7 +155,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
 

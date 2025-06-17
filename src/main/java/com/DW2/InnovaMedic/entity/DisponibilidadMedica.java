@@ -32,7 +32,7 @@ public class DisponibilidadMedica {
     @Column(name = "HORA_FIN", nullable = false)
     private LocalTime horaFin;
 
-    private enum DiaSemana {
+    public enum DiaSemana {
         Lunes, Martes, Miércoles, Jueves, Viernes, Sábado, Domingo
     }
 }

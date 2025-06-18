@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.service;
 
-import com.DW2.InnovaMedic.dto.ActionCitaMedicoDTO;
-import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
+import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 
 public interface MaintenanceCita {

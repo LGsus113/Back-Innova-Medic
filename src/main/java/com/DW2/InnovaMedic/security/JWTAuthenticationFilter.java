@@ -1,12 +1,11 @@
 package com.DW2.InnovaMedic.security;
 
-import com.DW2.InnovaMedic.dto.UsuarioDTO;
+import com.DW2.InnovaMedic.dto.log.UsuarioDTO;
 import com.DW2.InnovaMedic.entity.Auth;
-import com.DW2.InnovaMedic.entity.Medico;
-import com.DW2.InnovaMedic.entity.Paciente;
 import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
+import com.DW2.InnovaMedic.util.UserUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.Authentication;
@@ -62,12 +61,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername());
 
-        String rol = "Desconocido";
-        if (usuario instanceof Paciente) {
-            rol = "Paciente";
-        } else if (usuario instanceof Medico) {
-            rol = "Medico";
-        }
+        String rol = UserUtil.role(usuario);
 
         UsuarioDTO usuarioDTO = new UsuarioDTO(
                 usuario.getIdUsuario(),

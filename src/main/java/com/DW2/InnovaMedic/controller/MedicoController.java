@@ -1,8 +1,7 @@
 package com.DW2.InnovaMedic.controller;
 
-import com.DW2.InnovaMedic.dto.CitaDTO;
-import com.DW2.InnovaMedic.dto.MedicoRegistroDTO;
-import com.DW2.InnovaMedic.entity.Medico;
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

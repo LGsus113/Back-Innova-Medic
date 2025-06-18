@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
-import com.DW2.InnovaMedic.dto.SlotDTO;
-import com.DW2.InnovaMedic.dto.SlotRequestDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.dto.projections.CitaHorarioProjection;
 import com.DW2.InnovaMedic.entity.DisponibilidadMedica;
 import com.DW2.InnovaMedic.repository.CitaRepository;

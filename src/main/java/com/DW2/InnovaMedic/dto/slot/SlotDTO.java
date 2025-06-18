@@ -1,4 +1,4 @@
-package com.DW2.InnovaMedic.dto;
+package com.DW2.InnovaMedic.dto.slot;
 
 import java.time.LocalDate;
 

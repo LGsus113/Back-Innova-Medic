@@ -1,9 +1,9 @@
 package com.DW2.InnovaMedic.controller;
 
-import com.DW2.InnovaMedic.dto.ActualizarCitaCompletaDTO;
-import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.dto.SlotDTO;
-import com.DW2.InnovaMedic.dto.SlotRequestDTO;
+import com.DW2.InnovaMedic.dto.cita.ActualizarCitaCompletaDTO;
+import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
 import com.DW2.InnovaMedic.service.MaintenanceDisponibilidadMedica;

@@ -12,12 +12,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class UsuarioServiceImpl implements UserDetailsService{
 
     @Autowired
-    UsuarioRepository repo;
+    UsuarioRepository usuarioRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        Usuario usuario = repo.findOneByEmail(email)
+        Usuario usuario = usuarioRepository.findOneByEmail(email)
                 .orElseThrow( () -> new UsernameNotFoundException("El usuario no se ha encontrado con el email: " + email) );
 
         return new UsuarioDetailImpl(usuario);

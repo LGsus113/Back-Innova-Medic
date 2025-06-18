@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
-import com.DW2.InnovaMedic.dto.ActionCitaMedicoDTO;
-import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
+import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
 import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;

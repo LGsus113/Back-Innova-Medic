@@ -1,4 +1,4 @@
-package com.DW2.InnovaMedic.dto;
+package com.DW2.InnovaMedic.dto.registro;
 
 import com.DW2.InnovaMedic.entity.Usuario;
 

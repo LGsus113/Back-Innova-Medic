@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.service;
 
-import com.DW2.InnovaMedic.dto.CitaDTO;
-import com.DW2.InnovaMedic.dto.MedicoRegistroDTO;
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 
 import java.util.List;
 

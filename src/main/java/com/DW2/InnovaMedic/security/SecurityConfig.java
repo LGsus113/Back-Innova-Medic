@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
+                        .requestMatchers("/login", "/api/usuario/refresh-token", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilter(jwtAuthenticationFilter)

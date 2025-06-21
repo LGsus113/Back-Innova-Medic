@@ -59,10 +59,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
         Usuario usuario = userDetails.getUsuario();
 
-        String accessToken = Token.crearAccessToken(userDetails.getUser(), userDetails.getUsername());
-        String refreshToken = Token.crearRefreshToken(userDetails.getUser(), userDetails.getUsername());
-
         String rol = UserUtil.role(usuario);
+
+        String accessToken = Token.crearAccessToken(userDetails.getUser(), userDetails.getUsername(), rol);
+        String refreshToken = Token.crearRefreshToken(userDetails.getUser(), userDetails.getUsername(), rol);
 
         UsuarioDTO usuarioDTO = new UsuarioDTO(
                 usuario.getIdUsuario(),

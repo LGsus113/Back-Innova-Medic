@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -25,6 +26,11 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
 
     @Autowired
     DisponibilidadMedicaRepository disponibilidadMedicaRepository;
+
+    @Override
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioRepository.findOneByEmail(email);
+    }
 
     @Override
     @Cacheable(value = "perfilUsuario", key = "#idUsuario")

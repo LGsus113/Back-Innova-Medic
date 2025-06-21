@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @AllArgsConstructor
@@ -27,12 +28,14 @@ public class SecurityConfig {
         jwtAuthenticationFilter.setFilterProcessesUrl("/login");
 
         return http
-                .cors(cors -> {
-                })
+                .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/api/usuario/refresh-token", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
+                        .requestMatchers("/api/medicos/**").hasRole("Medico")
+                        .requestMatchers("/api/pacientes/**").hasRole("Paciente")
+                        .requestMatchers("/api/cita/**").hasAnyRole("Medico", "Paciente")
                         .anyRequest().authenticated()
                 )
                 .addFilter(jwtAuthenticationFilter)

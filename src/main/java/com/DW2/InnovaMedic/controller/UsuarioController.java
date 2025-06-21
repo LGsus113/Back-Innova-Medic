@@ -1,7 +1,9 @@
 package com.DW2.InnovaMedic.controller;
 
+import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.service.MaintenanceUsuario;
 import com.DW2.InnovaMedic.util.Token;
+import com.DW2.InnovaMedic.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +49,16 @@ public class UsuarioController {
         String email = datos.get("email");
         String nombre = datos.get("nombre");
 
-        String nuevoAccessToken = Token.crearAccessToken(nombre, email);
+        Usuario usuario = maintenanceUsuario.buscarPorEmail(email)
+                .orElse(null);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+
+        String rol = UserUtil.role(usuario);
+
+        String nuevoAccessToken = Token.crearAccessToken(nombre, email, rol);
 
         return ResponseEntity.ok(Map.of("accessToken", nuevoAccessToken));
     }

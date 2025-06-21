@@ -26,7 +26,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
     public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception {
         if (citaRecetaVaciaDTO.fecha() == null || citaRecetaVaciaDTO.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
@@ -62,6 +62,8 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     private void validarTransicionEstado(Cita.Estado estadoActual, Cita.Estado nuevoEstado) {
+        if (estadoActual == nuevoEstado) return;
+
         switch (estadoActual) {
             case Pendiente:
                 if (!List.of(Cita.Estado.Confirmada, Cita.Estado.Cancelada).contains(nuevoEstado)) {
@@ -79,8 +81,8 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                 }
                 break;
 
-            case Finalizada:
             case Cancelada:
+            case Finalizada:
                 throw new IllegalArgumentException(
                         "Una cita " + estadoActual + " no puede cambiar de estado"
                 );
@@ -93,7 +95,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
     public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
         if (nuevoEstado == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
@@ -137,6 +139,8 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                         "Receta no encontrada para la cita con ID: " + idCita
                 ));
 
+        medicamentoRecetaRepository.deleteByReceta_IdReceta(receta.getIdReceta());
+
         if (listaMedicamentos != null && !listaMedicamentos.isEmpty()) {
             List<MedicamentoReceta> medicamentos = listaMedicamentos.stream()
                     .filter(medicamento -> medicamento != null && !medicamento.trim().isEmpty())
@@ -155,7 +159,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     }
 
     @Override
-    @CacheEvict(value = {"citasPaciente", "citasMedico, slotsDisponibles"}, allEntries = true)
+    @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
 

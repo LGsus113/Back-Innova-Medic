@@ -12,12 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
-
     private final UserDetailsService userDetailsService;
     private final JWTAuthotizationFilter jwtAuthotizationFilter;
 
@@ -28,14 +26,12 @@ public class SecurityConfig {
         jwtAuthenticationFilter.setFilterProcessesUrl("/login");
 
         return http
-                .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
+                .cors(cors -> {
+                })
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/usuario/refresh-token", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
-                        .requestMatchers("/api/medicos/**").hasRole("Medico")
-                        .requestMatchers("/api/pacientes/**").hasRole("Paciente")
-                        .requestMatchers("/api/cita/**").hasAnyRole("Medico", "Paciente")
+                        .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilter(jwtAuthenticationFilter)
@@ -52,5 +48,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 }

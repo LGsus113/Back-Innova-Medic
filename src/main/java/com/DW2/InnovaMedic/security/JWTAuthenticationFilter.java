@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -59,10 +58,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
         Usuario usuario = userDetails.getUsuario();
 
-        String rol = UserUtil.role(usuario);
+        String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername());
 
-        String accessToken = Token.crearAccessToken(userDetails.getUser(), userDetails.getUsername(), rol);
-        String refreshToken = Token.crearRefreshToken(userDetails.getUser(), userDetails.getUsername(), rol);
+        String rol = UserUtil.role(usuario);
 
         UsuarioDTO usuarioDTO = new UsuarioDTO(
                 usuario.getIdUsuario(),
@@ -76,8 +74,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String jsonResponse = """
                 {
-                    "accessToken": "%s",
-                    "refreshToken": "%s",
+                    "token": "%s",
                     "usuario": {
                         "idUsuario": %d,
                         "nombre": "%s",
@@ -85,8 +82,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                         "rol": "%s"
                     }
                 }
-                """.formatted(accessToken, refreshToken,
-                usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
+                """.formatted(token, usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
 
         response.getWriter().write(jsonResponse);
     }

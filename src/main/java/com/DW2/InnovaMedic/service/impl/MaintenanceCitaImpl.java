@@ -163,7 +163,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
 
-        actualizarReceta(idCita, request.notasMedicas(), nombreMedico);
+        actualizarReceta(idCita, request.instruccionesAdicionales(), nombreMedico);
 
         medicamentosReceta(idCita, request.medicamentosList());
     }

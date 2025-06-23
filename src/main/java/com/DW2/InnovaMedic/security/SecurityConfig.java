@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class SecurityConfig {
     private final JWTAuthotizationFilter jwtAuthotizationFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
@@ -31,9 +32,10 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
                         .requestMatchers("/api/medicos/**").hasRole("Medico")
                         .requestMatchers("/api/pacientes/**").hasRole("Paciente")
-                        .requestMatchers("/api/cita/**").hasAnyRole("Medico", "Paciente")
+                        .requestMatchers("/api/cita/**", "/api/usuario/**").hasAnyRole("Medico", "Paciente")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
                 .addFilter(jwtAuthenticationFilter)
                 .addFilterBefore(jwtAuthotizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

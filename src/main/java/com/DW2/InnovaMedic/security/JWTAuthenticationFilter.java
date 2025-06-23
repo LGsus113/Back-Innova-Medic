@@ -2,12 +2,9 @@ package com.DW2.InnovaMedic.security;
 
 import com.DW2.InnovaMedic.dto.log.UsuarioDTO;
 import com.DW2.InnovaMedic.entity.Auth;
-import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
-import com.DW2.InnovaMedic.util.UserUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;

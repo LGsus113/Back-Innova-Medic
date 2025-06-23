@@ -45,7 +45,6 @@ public class Token {
             }
 
             return null;
-
         } catch (Exception e) {
             System.out.println("Error en el metodo {UsernamePasswordAuthenticationToken(): } " + e.getMessage());
             return null;

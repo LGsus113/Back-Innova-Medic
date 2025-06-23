@@ -9,14 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Service
-public class UsuarioServiceImpl implements UserDetailsService{
-
+public class UsuarioServiceImpl implements UserDetailsService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         Usuario usuario = usuarioRepository.findOneByEmail(email)
                 .orElseThrow( () -> new UsernameNotFoundException("El usuario no se ha encontrado con el email: " + email) );
 

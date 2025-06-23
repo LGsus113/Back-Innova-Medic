@@ -14,22 +14,6 @@ import java.util.Collections;
 public class UsuarioDetailImpl implements UserDetails {
     private final Usuario usuario;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        String rol = UserUtil.role(usuario);
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol));
-    }
-
-    @Override
-    public String getPassword() {
-        return usuario.getContrasenia();
-    }
-
-    @Override
-    public String getUsername() {
-        return usuario.getEmail();
-    }
-
     public Integer getIdUser() {
         return usuario.getIdUsuario();
     }
@@ -44,5 +28,21 @@ public class UsuarioDetailImpl implements UserDetails {
 
     public String getRole() {
         return UserUtil.role(usuario);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String rol = getRole();
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol));
+    }
+
+    @Override
+    public String getPassword() {
+        return usuario.getContrasenia();
+    }
+
+    @Override
+    public String getUsername() {
+        return usuario.getEmail();
     }
 }

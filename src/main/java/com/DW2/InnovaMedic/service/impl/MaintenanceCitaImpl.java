@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -139,21 +138,29 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                         "Receta no encontrada para la cita con ID: " + idCita
                 ));
 
-        medicamentoRecetaRepository.deleteByReceta_IdReceta(receta.getIdReceta());
+        List<MedicamentoReceta> medicamentosActuales = medicamentoRecetaRepository.findByReceta_IdReceta(receta.getIdReceta());
 
-        if (listaMedicamentos != null && !listaMedicamentos.isEmpty()) {
-            List<MedicamentoReceta> medicamentos = listaMedicamentos.stream()
-                    .filter(medicamento -> medicamento != null && !medicamento.trim().isEmpty())
-                    .map(medicamento -> {
-                        MedicamentoReceta mr = new MedicamentoReceta();
-                        mr.setReceta(receta);
-                        mr.setMedicamento(medicamento.trim());
-                        return mr;
-                    })
-                    .collect(Collectors.toList());
+        List<String> nuevosMedicamentosNormalizados = listaMedicamentos.stream()
+                .filter(m -> m != null && !m.trim().isEmpty())
+                .map(String::trim)
+                .map(line -> line.replaceFirst("^-\\s*", ""))
+                .toList();
 
-            if (!medicamentos.isEmpty()) {
-                medicamentoRecetaRepository.saveAll(medicamentos);
+        for (MedicamentoReceta actual : medicamentosActuales) {
+            if (!nuevosMedicamentosNormalizados.contains(actual.getMedicamento())) {
+                medicamentoRecetaRepository.delete(actual);
+            }
+        }
+
+        for (String nuevo : nuevosMedicamentosNormalizados) {
+            boolean yaExiste = medicamentosActuales.stream()
+                    .anyMatch(mr -> mr.getMedicamento().equalsIgnoreCase(nuevo));
+
+            if (!yaExiste) {
+                MedicamentoReceta nuevoMR = new MedicamentoReceta();
+                nuevoMR.setReceta(receta);
+                nuevoMR.setMedicamento(nuevo);
+                medicamentoRecetaRepository.save(nuevoMR);
             }
         }
     }

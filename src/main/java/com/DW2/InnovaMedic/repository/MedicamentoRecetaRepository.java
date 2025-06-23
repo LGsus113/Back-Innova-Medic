@@ -4,7 +4,9 @@ import com.DW2.InnovaMedic.entity.MedicamentoReceta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MedicamentoRecetaRepository extends JpaRepository<MedicamentoReceta, Integer> {
-    void deleteByReceta_IdReceta(Integer idReceta);
+    List<MedicamentoReceta> findByReceta_IdReceta(Integer idReceta);
 }

@@ -1,8 +1,10 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.entity.Usuario;
+import com.DW2.InnovaMedic.util.UserUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -14,7 +16,8 @@ public class UsuarioDetailImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        String rol = UserUtil.role(usuario);
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol));
     }
 
     @Override
@@ -27,11 +30,19 @@ public class UsuarioDetailImpl implements UserDetails {
         return usuario.getEmail();
     }
 
+    public Integer getIdUser() {
+        return usuario.getIdUsuario();
+    }
+
     public String getUser() {
         return usuario.getNombre();
     }
 
-    public Usuario getUsuario() {
-        return this.usuario;
+    public String getLastnameUser() {
+        return usuario.getApellido();
+    }
+
+    public String getRole() {
+        return UserUtil.role(usuario);
     }
 }

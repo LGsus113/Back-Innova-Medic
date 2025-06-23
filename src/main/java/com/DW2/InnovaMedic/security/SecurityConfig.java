@@ -32,6 +32,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
+                        .requestMatchers("/api/medicos/**").hasRole("Medico")
+                        .requestMatchers("/api/pacientes/**").hasRole("Paciente")
+                        .requestMatchers("/api/cita/**").hasAnyRole("Medico", "Paciente")
                         .anyRequest().authenticated()
                 )
                 .addFilter(jwtAuthenticationFilter)

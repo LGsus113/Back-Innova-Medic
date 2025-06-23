@@ -7,6 +7,7 @@ import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
 import com.DW2.InnovaMedic.util.UserUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -56,17 +57,18 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication authResult) throws IOException, ServletException {
 
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
-        Usuario usuario = userDetails.getUsuario();
+        String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername(), userDetails.getRole());
 
-        String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername());
-
-        String rol = UserUtil.role(usuario);
+        Integer idUser = userDetails.getIdUser();
+        String nameUser = userDetails.getUser();
+        String lastnameUser = userDetails.getLastnameUser();
+        String role = userDetails.getRole();
 
         UsuarioDTO usuarioDTO = new UsuarioDTO(
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                rol
+                idUser,
+                nameUser,
+                lastnameUser,
+                role
         );
 
         response.setContentType("application/json");

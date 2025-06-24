@@ -4,12 +4,16 @@ import com.DW2.InnovaMedic.entity.MedicamentoReceta;
 
 public record MedicamentoRecetaDTO(
         Integer idMedicamento,
-        String medicamento
+        String nombre,
+        String dosis,
+        String frecuencia
 ) {
     public static MedicamentoRecetaDTO fromEntity (MedicamentoReceta medicamentoReceta) {
         return new MedicamentoRecetaDTO(
                 medicamentoReceta.getIdMedicamento(),
-                medicamentoReceta.getMedicamento()
+                medicamentoReceta.getNombre(),
+                medicamentoReceta.getDosis(),
+                medicamentoReceta.getFrecuencia()
         );
     }
 }

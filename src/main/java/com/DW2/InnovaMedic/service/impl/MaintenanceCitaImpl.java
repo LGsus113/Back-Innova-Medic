@@ -2,6 +2,7 @@ package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
 import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.cita.MedicamentoRecetaRequestDTO;
 import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
@@ -131,7 +132,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         recetaRepository.save(receta);
     }
 
-    private void medicamentosReceta(Integer idCita, List<String> listaMedicamentos) {
+    private void medicamentosReceta(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) {
         Receta receta = recetaRepository.findByCita_IdCitas(idCita)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -140,38 +141,43 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         List<MedicamentoReceta> medicamentosActuales = medicamentoRecetaRepository.findByReceta_IdReceta(receta.getIdReceta());
 
-        List<String> nuevosMedicamentosNormalizados = listaMedicamentos.stream()
-                .filter(m -> m != null && !m.trim().isEmpty())
-                .map(String::trim)
-                .map(line -> line.replaceFirst("^-\\s*", ""))
-                .toList();
-
         for (MedicamentoReceta actual : medicamentosActuales) {
-            if (!nuevosMedicamentosNormalizados.contains(actual.getMedicamento())) {
+            boolean existeEnNuevos = listaMedicamentos.stream().anyMatch(nuevo ->
+                    actual.getNombre().equalsIgnoreCase(nuevo.nombre().trim()) &&
+                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
+                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim())
+            );
+
+            if (!existeEnNuevos) {
                 medicamentoRecetaRepository.delete(actual);
             }
         }
 
-        for (String nuevo : nuevosMedicamentosNormalizados) {
-            boolean yaExiste = medicamentosActuales.stream()
-                    .anyMatch(mr -> mr.getMedicamento().equalsIgnoreCase(nuevo));
+        for (MedicamentoRecetaRequestDTO nuevo : listaMedicamentos) {
+            boolean yaExiste = medicamentosActuales.stream().anyMatch(actual ->
+                    actual.getNombre().equalsIgnoreCase(nuevo.nombre().trim()) &&
+                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
+                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim())
+            );
 
             if (!yaExiste) {
-                MedicamentoReceta nuevoMR = new MedicamentoReceta();
-                nuevoMR.setReceta(receta);
-                nuevoMR.setMedicamento(nuevo);
-                medicamentoRecetaRepository.save(nuevoMR);
+                MedicamentoReceta mr = new MedicamentoReceta();
+                mr.setReceta(receta);
+                mr.setNombre(nuevo.nombre().trim());
+                mr.setDosis(nuevo.dosis().trim());
+                mr.setFrecuencia(nuevo.frecuencia().trim());
+                medicamentoRecetaRepository.save(mr);
             }
         }
     }
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
-    public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) {
-        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
+    public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
+        actualizarInformacionCita(idCita, actionCitaMedicoDTO.notasMedicas(), actionCitaMedicoDTO.diagnostico());
 
-        actualizarReceta(idCita, request.instruccionesAdicionales(), nombreMedico);
+        actualizarReceta(idCita, actionCitaMedicoDTO.instruccionesAdicionales(), nombreMedico);
 
-        medicamentosReceta(idCita, request.medicamentosList());
+        medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
     }
 }

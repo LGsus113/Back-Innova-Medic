@@ -1,7 +1,9 @@
 package com.DW2.InnovaMedic.controller;
 
 import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.cita.MedicoSegunEspecialidadDTO;
 import com.DW2.InnovaMedic.dto.registro.PacienteRegistroDTO;
+import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,9 @@ import java.util.Map;
 public class PacienteController {
     @Autowired
     MaintenancePaciente maintenancePaciente;
+
+    @Autowired
+    MaintenanceMedico maintenanceMedico;
 
     @GetMapping("/cita/{id}")
     public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id) {
@@ -50,6 +55,50 @@ public class PacienteController {
                             "message", "Error de búsqueda con código " + id + ": " + e.getMessage()
                     )
             );
+        }
+    }
+
+    @GetMapping("/especialidades")
+    public ResponseEntity<?> listarEspecialidadesUnicas() {
+        try {
+            List<String> especialidades = maintenanceMedico.obtenerEspecialidadesUnicas();
+
+            if (especialidades.isEmpty()) {
+                return ResponseEntity.ok().body(
+                        Map.of(
+                                "status", HttpStatus.OK.value(),
+                                "message", "No se encontraron especialidades disponibles"
+                        )
+                );
+            }
+
+            return ResponseEntity.ok(especialidades);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("errorMsg", "Hubo error al listar las especialidades."));
+        }
+    }
+
+    @GetMapping("/lista-medicos")
+    public ResponseEntity<?> listaMedicosPorEspecialidad(@RequestParam String especialidad) {
+        try {
+            List<MedicoSegunEspecialidadDTO> medicos = maintenanceMedico.listarMedicosPorEspecialidad(especialidad);
+
+            if (medicos.isEmpty()) {
+                return ResponseEntity.ok().body(
+                        Map.of(
+                                "status", HttpStatus.OK.value(),
+                                "message", "No hay médicos registrados con la especialidad: " + especialidad
+                        )
+                );
+            }
+
+            return ResponseEntity.ok(medicos);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("errorMsg", "Hubo un error al obtener los médicos por especialidad"));
         }
     }
 

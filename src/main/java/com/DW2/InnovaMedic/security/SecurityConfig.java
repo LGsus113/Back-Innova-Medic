@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,15 +27,9 @@ public class SecurityConfig {
 
         return http
                 .cors(cors -> {})
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
-                        .requestMatchers("/api/medicos/**").hasRole("Medico")
-                        .requestMatchers("/api/pacientes/**").hasRole("Paciente")
-                        .requestMatchers("/api/cita/**", "/api/usuario/**").hasAnyRole("Medico", "Paciente")
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(SecurityEndpointRules::security)
                 .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
                 .addFilter(jwtAuthenticationFilter)
                 .addFilterBefore(jwtAuthotizationFilter, UsernamePasswordAuthenticationFilter.class)

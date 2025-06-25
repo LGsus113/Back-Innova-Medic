@@ -1,6 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.cita.MedicoSegunEspecialidadDTO;
 import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Medico;
@@ -59,6 +60,23 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
         return citas.stream()
                 .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
+                .toList();
+    }
+
+    @Override
+    public List<String> obtenerEspecialidadesUnicas() throws Exception {
+        return medicoRepository.findAllDistinctEspecialidades();
+    }
+
+    @Override
+    public List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad) throws Exception {
+        List<Medico> medicos = medicoRepository.findByEspecialidadIgnoreCase(especialidad);
+        return medicos.stream()
+                .map(m -> new MedicoSegunEspecialidadDTO(
+                        m.getIdUsuario(),
+                        m.getNombre(),
+                        m.getApellido()
+                ))
                 .toList();
     }
 }

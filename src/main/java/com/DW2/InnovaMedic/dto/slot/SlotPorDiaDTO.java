@@ -1,12 +1,11 @@
 package com.DW2.InnovaMedic.dto.slot;
 
 import java.time.LocalDate;
+import java.util.List;
 
-public record SlotDTO(
+public record SlotPorDiaDTO(
         LocalDate fecha,
         String diaSemana,
-        String horaInicio,
-        String horaFin,
-        boolean disponible
+        List<SlotTimeDTO> slots
 ) {
 }

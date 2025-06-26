@@ -11,6 +11,7 @@ import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @CacheEvict(value = {"listaEspecialidades", "lstaMedicoPorEspecialidad"}, allEntries = true)
     public void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) throws Exception {
         usuarioRepository.findOneByEmail(medicoRegistroDTO.email())
                 .ifPresent(u -> {
@@ -64,11 +66,13 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
     }
 
     @Override
+    @Cacheable(value = "listaEspecialidades")
     public List<String> obtenerEspecialidadesUnicas() throws Exception {
         return medicoRepository.findAllDistinctEspecialidades();
     }
 
     @Override
+    @Cacheable(value = "lstaMedicoPorEspecialidad")
     public List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad) throws Exception {
         List<Medico> medicos = medicoRepository.findByEspecialidadIgnoreCase(especialidad);
         return medicos.stream()

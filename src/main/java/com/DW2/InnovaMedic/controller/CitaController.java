@@ -2,7 +2,7 @@ package com.DW2.InnovaMedic.controller;
 
 import com.DW2.InnovaMedic.dto.cita.ActualizarCitaCompletaDTO;
 import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.dto.slot.SlotDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotPorDiaDTO;
 import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
@@ -37,7 +37,7 @@ public class CitaController {
 
             SlotRequestDTO slotRequestDTO = new SlotRequestDTO(idMedico, fechaInicio, fechaFin);
 
-            List<SlotDTO> slots = maintenanceDisponibilidadMedica.obtenerSlotsDisponibles(slotRequestDTO);
+            List<SlotPorDiaDTO> slots = maintenanceDisponibilidadMedica.obtenerSlotsDisponibles(slotRequestDTO);
 
             if (slots.isEmpty()) {
                 return ResponseEntity.ok().body(

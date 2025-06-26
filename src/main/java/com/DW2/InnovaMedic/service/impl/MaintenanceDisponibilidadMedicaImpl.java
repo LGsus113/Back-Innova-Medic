@@ -1,8 +1,9 @@
 package com.DW2.InnovaMedic.service.impl;
 
-import com.DW2.InnovaMedic.dto.slot.SlotDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotPorDiaDTO;
 import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.dto.projections.CitaHorarioProjection;
+import com.DW2.InnovaMedic.dto.slot.SlotTimeDTO;
 import com.DW2.InnovaMedic.entity.DisponibilidadMedica;
 import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.DisponibilidadMedicaRepository;
@@ -33,8 +34,8 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
 
     @Override
     @Cacheable(value = "slotsDisponibles", key = "#slotRequestDTO.idMedico() + '-' + #slotRequestDTO.fechaInicio() + '-' + #slotRequestDTO.fechaFin()")
-    public List<SlotDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) throws Exception {
-        List<SlotDTO> slots = new ArrayList<>();
+    public List<SlotPorDiaDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) throws Exception {
+        List<SlotPorDiaDTO> listaFinal = new ArrayList<>();
 
         List<DisponibilidadMedica> disponibilidadMedica = disponibilidadMedicaRepository
                 .findByMedico_IdUsuario(slotRequestDTO.idMedico());
@@ -65,13 +66,15 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
                 LocalTime inicio = disponibilidad.getHoraInicio();
                 LocalTime fin = disponibilidad.getHoraFin();
 
+                List<SlotTimeDTO> slotsDelDia = new ArrayList<>();
+
                 while (!inicio.plusMinutes(30).isAfter(fin)) {
                     LocalTime slotInicio = inicio;
                     LocalTime slotFin = inicio.plusMinutes(30);
-                    LocalDate slotFecha = fecha;
 
+                    LocalDate finalFecha = fecha;
                     boolean ocupado = citasActivas.stream().anyMatch(cita -> {
-                        if (!cita.getFecha().isEqual(slotFecha)) return false;
+                        if (!cita.getFecha().isEqual(finalFecha)) return false;
 
                         LocalTime citaInicio = cita.getHora();
                         LocalTime citaFin = citaInicio.plusHours(1);
@@ -79,9 +82,7 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
                         return !(citaFin.isBefore(slotInicio) || citaInicio.isAfter(slotFin));
                     });
 
-                    slots.add(new SlotDTO(
-                            slotFecha,
-                            nombreDia,
+                    slotsDelDia.add(new SlotTimeDTO(
                             slotInicio.toString(),
                             slotFin.toString(),
                             !ocupado
@@ -89,9 +90,15 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
 
                     inicio = slotFin;
                 }
+
+                listaFinal.add(new SlotPorDiaDTO(
+                        fecha,
+                        nombreDia,
+                        slotsDelDia
+                ));
             }
         }
 
-        return slots;
+        return listaFinal;
     }
 }

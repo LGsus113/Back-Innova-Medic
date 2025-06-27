@@ -1,6 +1,7 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
 import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
 import com.DW2.InnovaMedic.dto.cita.MedicamentoRecetaRequestDTO;
 import com.DW2.InnovaMedic.entity.*;
@@ -24,6 +25,14 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final CitaRepository citaRepository;
     private final RecetaRepository recetaRepository;
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
+
+    @Override
+    public CitaDTO obtenerCitaCompletaPorID(Integer idCita) throws Exception {
+        Cita cita = citaRepository.findByIdWithRecetaAndMedicamentos(idCita)
+                .orElseThrow(() -> new Exception("Cita no encontrada con ID: " + idCita));
+
+        return CitaDTO.fromEntity(cita, cita.getReceta());
+    }
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)

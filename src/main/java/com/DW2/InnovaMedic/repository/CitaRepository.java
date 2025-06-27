@@ -9,9 +9,18 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Integer> {
+    @Query("""
+            SELECT c FROM Cita c
+                     LEFT JOIN FETCH c.receta r
+                     LEFT JOIN FETCH r.medicamentos
+                     WHERE c.idCitas = :idCita
+            """)
+    Optional<Cita> findByIdWithRecetaAndMedicamentos(@Param("idCita") Integer idCita);
+
     @Query("""
             SELECT c FROM Cita c
                  LEFT JOIN FETCH c.receta r

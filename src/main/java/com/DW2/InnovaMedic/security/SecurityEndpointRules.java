@@ -11,7 +11,7 @@ public class SecurityEndpointRules {
                 .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
                 .requestMatchers("/api/medicos/**", "/api/cita/actualizar/informacion", "/api/cita/actualizar/*/estado").hasRole("Medico")
                 .requestMatchers("/api/pacientes/**", "/api/cita/disponibilidad", "/api/cita/registrar").hasRole("Paciente")
-                .requestMatchers("/api/usuario/**").hasAnyRole("Medico", "Paciente")
+                .requestMatchers("/api/usuario/**", "/api/cita/*/receta-pdf").hasAnyRole("Medico", "Paciente")
                 .anyRequest().authenticated();
     }
 }

@@ -1,9 +1,6 @@
 package com.DW2.InnovaMedic.service.impl;
 
-import com.DW2.InnovaMedic.dto.cita.ActionCitaMedicoDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaDTO;
-import com.DW2.InnovaMedic.dto.cita.CitaRecetaVaciaDTO;
-import com.DW2.InnovaMedic.dto.cita.MedicamentoRecetaRequestDTO;
+import com.DW2.InnovaMedic.dto.cita.*;
 import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.*;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
@@ -137,11 +134,18 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La receta " + idCita + " no existe"));
 
         receta.setInstruccionesAdicionales(instruccionesAdicionales);
-        receta.setFirmaMedico(firmaMedico);
+        if (firmaMedico != null) {
+            receta.setFirmaMedico(firmaMedico);
+        }
+
         recetaRepository.save(receta);
     }
 
     private void medicamentosReceta(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) {
+        if (listaMedicamentos.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debes proporcionar los medicamentos");
+        }
+
         Receta receta = recetaRepository.findByCita_IdCitas(idCita)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -149,18 +153,6 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                 ));
 
         List<MedicamentoReceta> medicamentosActuales = medicamentoRecetaRepository.findByReceta_IdReceta(receta.getIdReceta());
-
-        for (MedicamentoReceta actual : medicamentosActuales) {
-            boolean existeEnNuevos = listaMedicamentos.stream().anyMatch(nuevo ->
-                    actual.getNombre().equalsIgnoreCase(nuevo.nombre().trim()) &&
-                            actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
-                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim())
-            );
-
-            if (!existeEnNuevos) {
-                medicamentoRecetaRepository.delete(actual);
-            }
-        }
 
         for (MedicamentoRecetaRequestDTO nuevo : listaMedicamentos) {
             boolean yaExiste = medicamentosActuales.stream().anyMatch(actual ->
@@ -182,11 +174,47 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
-    public void actualizarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
+    public void terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
         actualizarInformacionCita(idCita, actionCitaMedicoDTO.notasMedicas(), actionCitaMedicoDTO.diagnostico());
 
         actualizarReceta(idCita, actionCitaMedicoDTO.instruccionesAdicionales(), nombreMedico);
 
         medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
+    }
+
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
+        actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
+        actualizarReceta(idCita, request.instruccionesAdicionales(), null);
+    }
+
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    public void agregarMedicamento(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) throws Exception {
+        medicamentosReceta(idCita, listaMedicamentos);
+    }
+
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    public void actualizarMedicamento(MedicamentoRecetaDTO medicamentoRecetaDTO) {
+        MedicamentoReceta medicamentoReceta = medicamentoRecetaRepository.findById(medicamentoRecetaDTO.idMedicamento())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicamento no encontrado"));
+
+        medicamentoReceta.setNombre(medicamentoRecetaDTO.nombre().trim());
+        medicamentoReceta.setDosis(medicamentoRecetaDTO.dosis().trim());
+        medicamentoReceta.setFrecuencia(medicamentoRecetaDTO.frecuencia().trim());
+
+        medicamentoRecetaRepository.save(medicamentoReceta);
+    }
+
+    @Override
+    @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
+    public void eliminarMedicamento(Integer idMedicamento) throws Exception {
+        if (!medicamentoRecetaRepository.existsById(idMedicamento)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicamento no encontrado");
+        }
+
+        medicamentoRecetaRepository.deleteById(idMedicamento);
     }
 }

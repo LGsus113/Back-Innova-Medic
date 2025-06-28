@@ -66,7 +66,8 @@ public class CitaController {
     public ResponseEntity<?> obtenerSlotsDisponibles(
             @RequestParam("idMedico") Integer idMedico,
             @RequestParam("fechaInicio") String fechaInicioStr,
-            @RequestParam("fechaFin") String fechaFinStr) {
+            @RequestParam("fechaFin") String fechaFinStr
+    ) {
         try {
             LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
             LocalDate fechaFin = LocalDate.parse(fechaFinStr);
@@ -85,7 +86,6 @@ public class CitaController {
             }
 
             return ResponseEntity.ok(slots);
-
         } catch (IllegalArgumentException ie) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Map.of(
@@ -99,7 +99,7 @@ public class CitaController {
                     Map.of(
                             "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
                             "error", "Error interno al buscar citas",
-                            "message", "Error encontrado"
+                            "message", e.getMessage()
                     )
             );
         }
@@ -111,7 +111,7 @@ public class CitaController {
             Integer idCita = maintenanceCita.registrarCitaVacia(citaRecetaVaciaDTO);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", Map.of("idCita", idCita)
+                    "idCita", idCita
             ));
         } catch (IllegalArgumentException ie) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -137,7 +137,7 @@ public class CitaController {
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "Status", "error",
+                    "status", "error",
                     "message", "Error al agregar medicamentos: " + e.getMessage()
             ));
         }
@@ -150,7 +150,7 @@ public class CitaController {
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", estadoActualizado
+                    "estado", estadoActualizado
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -247,7 +247,7 @@ public class CitaController {
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", "Medicamento eliminado"
+                    "message", "Medicamento eliminado"
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(

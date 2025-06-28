@@ -6,12 +6,39 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityEndpointRules {
+    private static final String[] RUTAS_PUBLICAS = {
+            "/login",
+            "/api/pacientes/registrar",
+            "/api/medicos/registrar"
+    };
+
+    private static final String[] RUTAS_MEDICO = {
+            "/api/medicos/**",
+            "/api/cita/receta/agregar-medicamento",
+            "/api/cita/finalizar/informacion",
+            "/api/cita/actualizar/*/estado",
+            "/api/cita/actualizar/info-cita",
+            "/api/cita/actualizar/medicamento",
+            "/api/cita/delete-medicamento/*"
+    };
+
+    private static final String[] RUTAS_PACIENTE = {
+            "/api/pacientes/**",
+            "/api/cita/disponibilidad",
+            "/api/cita/registrar"
+    };
+
+    private static final String[] RUTAS_COMPARTIDAS = {
+            "/api/usuario/**",
+            "/api/cita/*/receta-pdf"
+    };
+
     public static void security(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
-                .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
-                .requestMatchers("/api/medicos/**", "/api/cita/receta/agregar-medicamento", "/api/cita/actualizar/informacion", "/api/cita/actualizar/*/estado", "/api/cita/update/info-cita", "/api/cita/update/medicamento", "/api/cita/delete-medicamento/*").hasRole("Medico")
-                .requestMatchers("/api/pacientes/**", "/api/cita/disponibilidad", "/api/cita/registrar").hasRole("Paciente")
-                .requestMatchers("/api/usuario/**", "/api/cita/*/receta-pdf").hasAnyRole("Medico", "Paciente")
+                .requestMatchers(RUTAS_PUBLICAS).permitAll()
+                .requestMatchers(RUTAS_MEDICO).hasRole("Medico")
+                .requestMatchers(RUTAS_PACIENTE).hasRole("Paciente")
+                .requestMatchers(RUTAS_COMPARTIDAS).hasAnyRole("Medico", "Paciente")
                 .anyRequest().authenticated();
     }
 }

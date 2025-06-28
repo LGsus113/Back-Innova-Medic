@@ -3,6 +3,7 @@ package com.DW2.InnovaMedic.controller;
 import com.DW2.InnovaMedic.dto.cita.CitaDTO;
 import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
+import com.DW2.InnovaMedic.util.ResponseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,33 +24,19 @@ public class MedicoController {
             List<CitaDTO> citasMedico = maintenanceMedico.obtenerCitasMedico(id);
 
             if (citasMedico.isEmpty()) {
-                return ResponseEntity.ok().body(
-                        Map.of(
-                                "status", HttpStatus.OK.value(),
-                                "message", "El medico existe, pero no tiene citas registradas.",
-                                "idMedico", id
-                        )
-                );
+                return ResponseUtil.successWith(Map.of(
+                        "status", "success",
+                        "message", "El médico existe, pero no tiene citas registradas.",
+                        "idMedico", id
+                ));
             }
 
-            return ResponseEntity.ok(citasMedico);
+            return ResponseUtil.success(citasMedico);
         } catch (IllegalArgumentException ie) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    Map.of(
-                            "status", HttpStatus.NOT_FOUND.value(),
-                            "error", "Medico no encontrado",
-                            "message", ie.getMessage(),
-                            "idSolicitado", id
-                    )
-            );
+            return ResponseUtil.error(HttpStatus.NOT_FOUND, "Médico no encontrado: " + ie.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(
-                    Map.of(
-                            "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "error", "Error interno al buscar citas",
-                            "message", "Error de búsqueda con código " + id + ": " + e.getMessage()
-                    )
-            );
+            return ResponseUtil.error(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error interno al buscar citas del médico con ID " + id + ": " + e.getMessage());
         }
     }
 
@@ -57,11 +44,10 @@ public class MedicoController {
     public ResponseEntity<?> registrarMedico(@RequestBody MedicoRegistroDTO medicoRegistroDTO) {
         try {
             maintenanceMedico.registrarMedicos(medicoRegistroDTO);
-            return ResponseEntity.ok(Map.of("message", "Usuario registrado con exito"));
+            return ResponseUtil.successMessage("Usuario registrado con éxito");
         } catch (Exception e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("errorMsg", "Hubo error al registrar usuario: " + e.getMessage()));
+            return ResponseUtil.error(HttpStatus.BAD_REQUEST,
+                    "Hubo un error al registrar usuario: " + e.getMessage());
         }
     }
 }

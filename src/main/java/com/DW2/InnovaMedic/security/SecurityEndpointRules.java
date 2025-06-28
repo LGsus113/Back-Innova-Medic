@@ -16,7 +16,6 @@ public class SecurityEndpointRules {
             "/api/medicos/**",
             "/api/cita/receta/agregar-medicamento",
             "/api/cita/finalizar/informacion",
-            "/api/cita/actualizar/*/estado",
             "/api/cita/actualizar/info-cita",
             "/api/cita/actualizar/medicamento",
             "/api/cita/delete-medicamento/*"
@@ -30,7 +29,8 @@ public class SecurityEndpointRules {
 
     private static final String[] RUTAS_COMPARTIDAS = {
             "/api/usuario/**",
-            "/api/cita/*/receta-pdf"
+            "/api/cita/*/receta-pdf",
+            "/api/cita/actualizar/*/estado",
     };
 
     public static void security(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {

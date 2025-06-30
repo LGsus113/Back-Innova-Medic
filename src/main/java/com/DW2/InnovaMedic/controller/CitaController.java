@@ -61,16 +61,17 @@ public class CitaController {
             return ResponseUtil.successMessage("No existen slots disponibles");
         }
 
-        return ResponseEntity.ok(slots);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", slots,
+                "message", "Slots cargados correctamente"
+        ));
     }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarCitaConRecetaVacia(@RequestBody CitaRecetaVaciaDTO citaRecetaVaciaDTO) {
         Integer idCita = maintenanceCita.registrarCitaVacia(citaRecetaVaciaDTO);
-        return ResponseUtil.successWith(Map.of(
-                "status", "success",
-                "idCita", idCita
-        ));
+        return ResponseUtil.success(Map.of("idCita", idCita));
     }
 
     @PostMapping("/receta/agregar-medicamento")

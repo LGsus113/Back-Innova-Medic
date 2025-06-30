@@ -25,10 +25,13 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity<?> error(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(Map.of(
-                "status", "error",
-                "message", message
-        ));
+        return ResponseEntity
+                .status(status)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON) // 👈 Añadir esto
+                .body(Map.of(
+                        "status", "error",
+                        "message", message
+                ));
     }
 
     public static ResponseEntity<?> errorWith(HttpStatus status, Map<String, Object> body) {

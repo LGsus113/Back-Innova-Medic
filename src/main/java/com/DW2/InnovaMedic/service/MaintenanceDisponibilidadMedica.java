@@ -6,5 +6,5 @@ import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import java.util.List;
 
 public interface MaintenanceDisponibilidadMedica {
-    List<SlotPorDiaDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) throws Exception;
+    List<SlotPorDiaDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO);
 }

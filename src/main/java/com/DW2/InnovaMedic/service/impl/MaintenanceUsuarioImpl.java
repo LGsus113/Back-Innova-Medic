@@ -11,7 +11,7 @@ import com.DW2.InnovaMedic.repository.DisponibilidadMedicaRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenanceUsuario;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +19,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
-    @Autowired
-    UsuarioRepository usuarioRepository;
-
-    @Autowired
-    DisponibilidadMedicaRepository disponibilidadMedicaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final DisponibilidadMedicaRepository disponibilidadMedicaRepository;
 
     @Override
     public Optional<Usuario> buscarPorEmail(String email) {
@@ -34,9 +32,9 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
 
     @Override
     @Cacheable(value = "perfilUsuario", key = "#idUsuario")
-    public Object obtenerUsuarioPorId(Integer idUsuario) throws Exception {
+    public Object obtenerUsuarioPorId(Integer idUsuario) {
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new Exception("Usuario no encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario con id " + idUsuario +" no encontrado."));
 
         if (usuario instanceof Medico medico) {
             List<DisponibilidadMedica> disponibilidades = disponibilidadMedicaRepository.findByMedico_IdUsuario(idUsuario);
@@ -68,7 +66,7 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
                     paciente.getDireccion()
             );
         } else {
-            throw new Exception("Tipo de usuario no reconocido");
+            throw new IllegalStateException("Tipo de usuario no reconocido");
         }
     }
 }

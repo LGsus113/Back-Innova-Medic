@@ -28,7 +28,7 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void registrarPaciente(PacienteRegistroDTO pacienteRegistroDTO) throws Exception {
+    public void registrarPaciente(PacienteRegistroDTO pacienteRegistroDTO) {
         usuarioRepository.findOneByEmail(pacienteRegistroDTO.email())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + pacienteRegistroDTO.email());
@@ -51,7 +51,7 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
 
     @Override
     @Cacheable(value = "citasPaciente")
-    public List<CitaDTO> obtenerCitasPaciente(Integer id) throws Exception {
+    public List<CitaDTO> obtenerCitasPaciente(Integer id) {
         if (!pacienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Paciente con Id " + id + " no existe");
         }

@@ -7,8 +7,8 @@ import com.DW2.InnovaMedic.dto.registro.MedicoRegistroDTO;
 import java.util.List;
 
 public interface MaintenanceMedico {
-    void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) throws Exception;
-    List<CitaDTO> obtenerCitasMedico(Integer id) throws Exception;
-    List<String> obtenerEspecialidadesUnicas() throws Exception;
-    List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad) throws Exception;
+    void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO);
+    List<CitaDTO> obtenerCitasMedico(Integer id);
+    List<String> obtenerEspecialidadesUnicas();
+    List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad);
 }

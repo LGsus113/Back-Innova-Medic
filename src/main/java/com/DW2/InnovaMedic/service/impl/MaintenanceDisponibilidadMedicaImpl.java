@@ -9,7 +9,7 @@ import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.DisponibilidadMedicaRepository;
 import com.DW2.InnovaMedic.service.MaintenanceDisponibilidadMedica;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +24,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibilidadMedica {
-    @Autowired
-    DisponibilidadMedicaRepository disponibilidadMedicaRepository;
-
-    @Autowired
-    CitaRepository citaRepository;
+    private final DisponibilidadMedicaRepository disponibilidadMedicaRepository;
+    private final CitaRepository citaRepository;
 
     @Override
     @Cacheable(value = "slotsDisponibles", key = "#slotRequestDTO.idMedico() + '-' + #slotRequestDTO.fechaInicio() + '-' + #slotRequestDTO.fechaFin()")
-    public List<SlotPorDiaDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) throws Exception {
+    public List<SlotPorDiaDTO> obtenerSlotsDisponibles(SlotRequestDTO slotRequestDTO) {
         List<SlotPorDiaDTO> listaFinal = new ArrayList<>();
 
         List<DisponibilidadMedica> disponibilidadMedica = disponibilidadMedicaRepository
@@ -54,12 +52,7 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
             String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
             nombreDia = nombreDia.substring(0, 1).toUpperCase() + nombreDia.substring(1).toLowerCase();
 
-            DisponibilidadMedica.DiaSemana diaSemanaEnum;
-            try {
-                diaSemanaEnum = DisponibilidadMedica.DiaSemana.valueOf(nombreDia);
-            } catch (IllegalArgumentException ilae) {
-                continue;
-            }
+            DisponibilidadMedica.DiaSemana diaSemanaEnum = convertirNombreDiaEnum(nombreDia);
 
             if (disponibilidadPorDia.containsKey(diaSemanaEnum)) {
                 DisponibilidadMedica disponibilidad = disponibilidadPorDia.get(diaSemanaEnum);
@@ -101,4 +94,13 @@ public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibi
 
         return listaFinal;
     }
+
+    private DisponibilidadMedica.DiaSemana convertirNombreDiaEnum(String nombreDia) {
+        try {
+            return DisponibilidadMedica.DiaSemana.valueOf(nombreDia);
+        } catch (IllegalArgumentException iaex) {
+            throw new IllegalArgumentException(nombreDia);
+        }
+    }
 }
+

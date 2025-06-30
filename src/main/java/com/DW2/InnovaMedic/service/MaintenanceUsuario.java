@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface MaintenanceUsuario {
     Optional<Usuario> buscarPorEmail(String email);
-    Object obtenerUsuarioPorId(Integer idUsuario) throws Exception;
+    Object obtenerUsuarioPorId(Integer idUsuario);
 }

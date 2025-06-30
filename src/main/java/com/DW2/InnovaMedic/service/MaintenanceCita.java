@@ -6,19 +6,19 @@ import com.DW2.InnovaMedic.entity.Cita;
 import java.util.List;
 
 public interface MaintenanceCita {
-    CitaDTO obtenerCitaCompletaPorID(Integer idCita) throws Exception;
+    CitaDTO obtenerCitaCompletaPorID(Integer idCita);
 
-    Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception;
+    Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO);
 
-    String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception;
+    String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado);
 
-    void terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico) throws Exception;
+    void terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico);
 
-    void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception;
+    void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request);
 
-    void agregarMedicamento(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) throws Exception;
+    void agregarMedicamento(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos);
 
-    void actualizarMedicamento(MedicamentoRecetaDTO medicamentoRecetaDTO) throws Exception;
+    void actualizarMedicamento(MedicamentoRecetaDTO medicamentoRecetaDTO);
 
-    void eliminarMedicamento(Integer idMedicamento) throws Exception;
+    void eliminarMedicamento(Integer idMedicamento);
 }

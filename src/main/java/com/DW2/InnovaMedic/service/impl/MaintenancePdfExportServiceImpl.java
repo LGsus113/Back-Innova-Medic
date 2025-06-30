@@ -18,7 +18,7 @@ import java.util.List;
 @Transactional
 public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportService {
     @Override
-    public byte[] exportarRecetaComoPDF(CitaDTO citaDTO) throws Exception {
+    public byte[] exportarRecetaComoPDF(CitaDTO citaDTO) {
         RecetaDTO recetaDTO = citaDTO.recetaDTO();
         PacienteResumenDTO pacienteResumenDTO = citaDTO.paciente();
         MedicoResumenDTO medicoResumenDTO = citaDTO.medico();

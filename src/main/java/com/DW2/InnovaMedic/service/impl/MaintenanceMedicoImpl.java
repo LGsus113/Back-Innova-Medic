@@ -31,7 +31,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
     @Override
     @CacheEvict(value = {"listaEspecialidades", "lstaMedicoPorEspecialidad"}, allEntries = true)
-    public void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) throws Exception {
+    public void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO) {
         usuarioRepository.findOneByEmail(medicoRegistroDTO.email())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con el email: " + medicoRegistroDTO.email());
@@ -53,7 +53,7 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
     @Override
     @Cacheable(value = "citasMedico")
-    public List<CitaDTO> obtenerCitasMedico(Integer id) throws Exception {
+    public List<CitaDTO> obtenerCitasMedico(Integer id) {
         if (!medicoRepository.existsById(id)) {
             throw new IllegalArgumentException("Medico con Id " + id + " no existe");
         }
@@ -67,13 +67,13 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
     @Override
     @Cacheable(value = "listaEspecialidades")
-    public List<String> obtenerEspecialidadesUnicas() throws Exception {
+    public List<String> obtenerEspecialidadesUnicas() {
         return medicoRepository.findAllDistinctEspecialidades();
     }
 
     @Override
     @Cacheable(value = "lstaMedicoPorEspecialidad")
-    public List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad) throws Exception {
+    public List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad) {
         List<Medico> medicos = medicoRepository.findByEspecialidadIgnoreCase(especialidad);
         return medicos.stream()
                 .map(m -> new MedicoSegunEspecialidadDTO(

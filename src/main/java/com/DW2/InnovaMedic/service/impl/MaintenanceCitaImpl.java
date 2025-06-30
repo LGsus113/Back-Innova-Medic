@@ -24,16 +24,16 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
     @Override
-    public CitaDTO obtenerCitaCompletaPorID(Integer idCita) throws Exception {
+    public CitaDTO obtenerCitaCompletaPorID(Integer idCita) {
         Cita cita = citaRepository.findByIdWithRecetaAndMedicamentos(idCita)
-                .orElseThrow(() -> new Exception("Cita no encontrada con ID: " + idCita));
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada con ID: " + idCita));
 
         return CitaDTO.fromEntity(cita, cita.getReceta());
     }
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
-    public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) throws Exception {
+    public Integer registrarCitaVacia(CitaRecetaVaciaDTO citaRecetaVaciaDTO) {
         if (citaRecetaVaciaDTO.fecha() == null || citaRecetaVaciaDTO.hora() == null) {
             throw new IllegalArgumentException("Fecha y hora son requeridos");
         }
@@ -102,7 +102,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
-    public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) throws Exception {
+    public String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado) {
         if (nuevoEstado == null) {
             throw new IllegalArgumentException("El nuevo estado no puede ser nulo");
         }
@@ -184,14 +184,14 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
-    public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) throws Exception {
+    public void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request) {
         actualizarInformacionCita(idCita, request.notasMedicas(), request.diagnostico());
         actualizarReceta(idCita, request.instruccionesAdicionales(), null);
     }
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
-    public void agregarMedicamento(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) throws Exception {
+    public void agregarMedicamento(Integer idCita, List<MedicamentoRecetaRequestDTO> listaMedicamentos) {
         medicamentosReceta(idCita, listaMedicamentos);
     }
 
@@ -210,7 +210,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico"}, allEntries = true)
-    public void eliminarMedicamento(Integer idMedicamento) throws Exception {
+    public void eliminarMedicamento(Integer idMedicamento) {
         if (!medicamentoRecetaRepository.existsById(idMedicamento)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicamento no encontrado");
         }

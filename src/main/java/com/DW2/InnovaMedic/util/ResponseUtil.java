@@ -33,8 +33,4 @@ public class ResponseUtil {
                         "message", message
                 ));
     }
-
-    public static ResponseEntity<?> errorWith(HttpStatus status, Map<String, Object> body) {
-        return ResponseEntity.status(status).body(body);
-    }
 }

@@ -55,6 +55,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
         String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername(), userDetails.getRole());
+        String refreshToken = Token.crearRefreshToken(userDetails.getUsername());
 
         Integer idUser = userDetails.getIdUser();
         String nameUser = userDetails.getUser();
@@ -74,6 +75,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String jsonResponse = """
                 {
                     "token": "%s",
+                    "refreshToken": "%s",
                     "usuario": {
                         "idUsuario": %d,
                         "nombre": "%s",
@@ -81,7 +83,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                         "rol": "%s"
                     }
                 }
-                """.formatted(token, usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
+                """.formatted(token, refreshToken, usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
 
         response.getWriter().write(jsonResponse);
     }

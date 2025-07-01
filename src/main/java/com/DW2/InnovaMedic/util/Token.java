@@ -28,6 +28,30 @@ public class Token {
                 .compact();
     }
 
+    public static String crearRefreshToken(String email) {
+        long duracion = 24 * 60 * 60 * 1000L;
+        Date expiracion = new Date(System.currentTimeMillis() + duracion);
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(expiracion)
+                .signWith(Keys.hmacShaKeyFor(TOKEN_SECRETO.getBytes()))
+                .compact();
+    }
+
+    public static String getEmailFromRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(TOKEN_SECRETO.getBytes())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static UsernamePasswordAuthenticationToken getauth(String token) {
         try {
             Claims claims = Jwts.parserBuilder()

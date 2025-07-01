@@ -9,7 +9,8 @@ public class SecurityEndpointRules {
     private static final String[] RUTAS_PUBLICAS = {
             "/login",
             "/api/pacientes/registrar",
-            "/api/medicos/registrar"
+            "/api/medicos/registrar",
+            "/api/usuario/refresh"
     };
 
     private static final String[] RUTAS_MEDICO = {

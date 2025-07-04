@@ -1,5 +1,7 @@
 package com.DW2.InnovaMedic.security;
 
+import com.DW2.InnovaMedic.security.JWTExceptions.CustomAccessDeniedHandler;
+import com.DW2.InnovaMedic.security.JWTExceptions.CustomAuthenticationEntryPoint;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class SecurityConfig {
     private final JWTAuthotizationFilter jwtAuthotizationFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
@@ -26,11 +29,15 @@ public class SecurityConfig {
         jwtAuthenticationFilter.setFilterProcessesUrl("/login");
 
         return http
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(SecurityEndpointRules::security)
-                .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .addFilter(jwtAuthenticationFilter)
                 .addFilterBefore(jwtAuthotizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

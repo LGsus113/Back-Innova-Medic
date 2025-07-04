@@ -1,13 +1,15 @@
-package com.DW2.InnovaMedic.security;
+package com.DW2.InnovaMedic.security.JWTExceptions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
@@ -17,12 +19,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String json = """
-                {
-                    "error": "No tienes permiso para acceder a este servicio"
-                }
-                """;
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", 403);
+        responseBody.put("message", "No tienes permiso para acceder a este servicio");
 
-        response.getWriter().write(json);
+        new ObjectMapper().writeValue(response.getOutputStream(), responseBody);
     }
 }

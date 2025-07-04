@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class SecurityEndpointRules {
     private static final String[] RUTAS_PUBLICAS = {
             "/login",
+            "/error",
             "/api/pacientes/registrar",
             "/api/medicos/registrar",
             "/api/usuario/refresh"

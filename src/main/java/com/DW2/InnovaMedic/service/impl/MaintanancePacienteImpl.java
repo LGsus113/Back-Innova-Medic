@@ -8,15 +8,17 @@ import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.PacienteRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
+import com.DW2.InnovaMedic.util.specifications.CitaSpecificationBuilder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
+import static com.DW2.InnovaMedic.util.UserUtil.responseCitas;
 
 @Service
 @RequiredArgsConstructor
@@ -51,14 +53,14 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
 
     @Override
     @Cacheable(value = "citasPaciente")
-    public List<CitaDTO> obtenerCitasPaciente(Integer id) {
+    public List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado) {
         if (!pacienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Paciente con Id " + id + " no existe");
         }
 
-        List<Cita> citas = citaRepository.findByPacienteWithRecetasAndMedicamentos(id);
-        return citas.stream()
-                .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
-                .toList();
+        Specification<Cita> spec = CitaSpecificationBuilder.filterCitas(id, estado, CitaSpecificationBuilder.TipoBusqueda.PACIENTE);
+        List<Cita> citas = citaRepository.findAll(spec);
+
+        return responseCitas(citas);
     }
 }

@@ -3,6 +3,7 @@ package com.DW2.InnovaMedic.controller;
 import com.DW2.InnovaMedic.dto.cita.CitaDTO;
 import com.DW2.InnovaMedic.dto.cita.MedicoSegunEspecialidadDTO;
 import com.DW2.InnovaMedic.dto.registro.PacienteRegistroDTO;
+import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
 import com.DW2.InnovaMedic.util.ResponseUtil;
@@ -21,8 +22,8 @@ public class PacienteController {
     private final MaintenanceMedico maintenanceMedico;
 
     @GetMapping("/cita/{id}")
-    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id) {
-        List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id);
+    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id, @RequestParam(required = false) Cita.Estado estado) {
+        List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id, estado);
 
         if (citasPaciente.isEmpty()) {
             return ResponseUtil.successWith(Map.of(

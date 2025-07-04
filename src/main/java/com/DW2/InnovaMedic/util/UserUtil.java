@@ -1,19 +1,25 @@
 package com.DW2.InnovaMedic.util;
 
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.entity.Paciente;
 import com.DW2.InnovaMedic.entity.Usuario;
 
+import java.util.List;
+
 public class UserUtil {
-    public static String role (Usuario usuario) {
-        String rol = "Desconocido";
+    public static String role(Usuario usuario) {
+        return switch (usuario) {
+            case Paciente _ -> "Paciente";
+            case Medico _ -> "Medico";
+            default -> "Desconocido";
+        };
+    }
 
-        if (usuario instanceof Paciente) {
-            rol = "Paciente";
-        } else if (usuario instanceof Medico) {
-            rol = "Medico";
-        }
-
-        return rol;
+    public static List<CitaDTO> responseCitas(List<Cita> citas) {
+        return citas.stream()
+                .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
+                .toList();
     }
 }

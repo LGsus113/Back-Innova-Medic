@@ -1,104 +1,125 @@
 package com.DW2.InnovaMedic.controller;
 
-import com.DW2.InnovaMedic.dto.ActualizarCitaCompletaDTO;
-import com.DW2.InnovaMedic.dto.CitaRecetaVaciaDTO;
+import com.DW2.InnovaMedic.dto.cita.*;
+import com.DW2.InnovaMedic.dto.slot.SlotPorDiaDTO;
+import com.DW2.InnovaMedic.dto.slot.SlotRequestDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.DW2.InnovaMedic.service.MaintenanceDisponibilidadMedica;
+import com.DW2.InnovaMedic.service.MaintenancePdfExportService;
+import com.DW2.InnovaMedic.util.ResponseUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/cita")
 public class CitaController {
-    @Autowired
-    MaintenanceCita maintenanceCita;
+    private final MaintenanceCita maintenanceCita;
+    private final MaintenanceDisponibilidadMedica maintenanceDisponibilidadMedica;
+    private final MaintenancePdfExportService maintenancePdfExportService;
 
-    @PostMapping("/registrar")
-    public ResponseEntity<?> registrarCitaRecetaVacia(@RequestBody CitaRecetaVaciaDTO citaRecetaVaciaDTO) {
-        try {
-            Integer idCita = maintenanceCita.registrarCitaVacia(citaRecetaVaciaDTO);
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "data", Map.of("idCita", idCita)
-            ));
-        } catch (IllegalArgumentException ie) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", ie.getMessage()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", "Error interno al registrar cita: " + e.getMessage()
-            ));
+    @GetMapping("/{idCita}/receta-pdf")
+    public ResponseEntity<?> descargarPDF(@PathVariable Integer idCita) {
+        CitaDTO citaDTO = maintenanceCita.obtenerCitaCompletaPorID(idCita);
+        RecetaDTO recetaDTO = citaDTO.recetaDTO();
+
+        if (recetaDTO == null || recetaDTO.medicamentos() == null || recetaDTO.medicamentos().isEmpty()) {
+            return ResponseUtil.error(HttpStatus.BAD_REQUEST, "La cita con ID " + idCita + " no tiene una receta asociada");
         }
+
+        byte[] pdf = maintenancePdfExportService.exportarRecetaComoPDF(citaDTO);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=receta-" + idCita + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
-    @PutMapping("/actualizar/informacion")
-    public ResponseEntity<?> actualizarCitaCompleta(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
-        try {
-            maintenanceCita.actualizarCitaCompleta(
-                    actualizarCitaCompletaDTO.id(),
-                    actualizarCitaCompletaDTO.actionCitaMedicoDTO(),
-                    actualizarCitaCompletaDTO.nombreMedico()
-            );
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<?> obtenerSlotsDisponibles(
+            @RequestParam("idMedico") Integer idMedico,
+            @RequestParam("fechaInicio") String fechaInicioStr,
+            @RequestParam("fechaFin") String fechaFinStr
+    ) {
+        LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+        LocalDate fechaFin = LocalDate.parse(fechaFinStr);
 
-            String estadoActualizado = maintenanceCita.actualizarEstadoCita(
-                    actualizarCitaCompletaDTO.id(),
-                    Cita.Estado.Finalizada
-            );
+        SlotRequestDTO slotRequestDTO = new SlotRequestDTO(idMedico, fechaInicio, fechaFin);
 
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "data", Map.of(
-                            "message", "Datos actualizados y medicamentos agregados",
-                            "estadoActualizacion", estadoActualizado
-                    )
-            ));
-        } catch (IllegalArgumentException ie) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", "Datos inválidos: " + ie.getMessage()
-            ));
-        } catch (IllegalStateException ise) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-                    "status", "error",
-                    "message", "No se pudo actualizar el estado: " + ise.getMessage()
-            ));
-        } catch (ResponseStatusException rse) {
-            assert rse.getReason() != null;
+        List<SlotPorDiaDTO> slots = maintenanceDisponibilidadMedica.obtenerSlotsDisponibles(slotRequestDTO);
 
-            return ResponseEntity.status(rse.getStatusCode()).body(Map.of(
-                    "status", "error",
-                    "message", rse.getReason()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", "Error interno al procesar la solicitud: " + e.getMessage()
-            ));
+        if (slots.isEmpty()) {
+            return ResponseUtil.successMessage("No existen slots disponibles");
         }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", slots,
+                "message", "Slots cargados correctamente"
+        ));
+    }
+
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registrarCitaConRecetaVacia(@RequestBody CitaRecetaVaciaDTO citaRecetaVaciaDTO) {
+        Integer idCita = maintenanceCita.registrarCitaVacia(citaRecetaVaciaDTO);
+        return ResponseUtil.success(Map.of("idCita", idCita));
+    }
+
+    @PostMapping("/receta/agregar-medicamento")
+    public ResponseEntity<?> agregarMedicamentosReceta(@RequestBody AgregarMedicamentoRecetaDTO medicamentoRecetaDTO) {
+        maintenanceCita.agregarMedicamento(medicamentoRecetaDTO.idCita(), medicamentoRecetaDTO.listaMedicamentos());
+        return ResponseUtil.successMessage("Medicamentos agregados correctamente");
     }
 
     @PutMapping("/actualizar/{id}/estado")
     public ResponseEntity<?> actualizarEstado(@PathVariable Integer id, @RequestParam Cita.Estado estado) {
-        try {
-            String estadoActualizado = maintenanceCita.actualizarEstadoCita(id, estado);
+        String estadoActualizado = maintenanceCita.actualizarEstadoCita(id, estado);
+        return ResponseUtil.success(Map.of("estado", estadoActualizado));
+    }
 
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "data", estadoActualizado
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "Status", "error",
-                    "message", "Error al actualizar estado: " + e.getMessage()
-            ));
-        }
+    @PutMapping("/finalizar/informacion")
+    public ResponseEntity<?> terminarRegistroCitaCompleta(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
+        maintenanceCita.terminarDeRegistrarCitaCompleta(
+                actualizarCitaCompletaDTO.id(),
+                actualizarCitaCompletaDTO.actionCitaMedicoDTO(),
+                actualizarCitaCompletaDTO.nombreMedico()
+        );
+
+        String estadoActualizado = maintenanceCita.actualizarEstadoCita(
+                actualizarCitaCompletaDTO.id(),
+                Cita.Estado.Finalizada
+        );
+
+        return ResponseUtil.success(Map.of(
+                "message", "Datos actualizados y medicamentos agregados",
+                "estadoActualizacion", estadoActualizado
+        ));
+    }
+
+    @PutMapping("/actualizar/info-cita")
+    public ResponseEntity<?> actualizarInformacionCita(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
+        maintenanceCita.actualizarInformacionMedicaCita(actualizarCitaCompletaDTO.id(), actualizarCitaCompletaDTO.actionCitaMedicoDTO());
+        return ResponseUtil.successMessage("Datos actualizados");
+    }
+
+    @PutMapping("/actualizar/medicamento")
+    public ResponseEntity<?> actualizarMedicamento(@RequestBody MedicamentoRecetaDTO medicamentoRecetaDTO) {
+        maintenanceCita.actualizarMedicamento(medicamentoRecetaDTO);
+        return ResponseUtil.successMessage("Medicamento actualizado");
+    }
+
+    @DeleteMapping("/delete-medicamento/{id}")
+    public ResponseEntity<?> eliminarMedicamento(@PathVariable Integer id) {
+        maintenanceCita.eliminarMedicamento(id);
+        return ResponseUtil.successMessage("Medicamento eliminado");
     }
 }

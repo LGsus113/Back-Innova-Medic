@@ -1,4 +1,4 @@
-package com.DW2.InnovaMedic.dto;
+package com.DW2.InnovaMedic.dto.cita;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

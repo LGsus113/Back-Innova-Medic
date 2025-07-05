@@ -1,31 +1,27 @@
 package com.DW2.InnovaMedic.security;
 
-import com.DW2.InnovaMedic.dto.UsuarioDTO;
+import com.DW2.InnovaMedic.dto.log.UsuarioDTO;
 import com.DW2.InnovaMedic.entity.Auth;
-import com.DW2.InnovaMedic.entity.Medico;
-import com.DW2.InnovaMedic.entity.Paciente;
-import com.DW2.InnovaMedic.entity.Usuario;
 import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -56,41 +52,48 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-
         UsuarioDetailImpl userDetails = (UsuarioDetailImpl) authResult.getPrincipal();
-        Usuario usuario = userDetails.getUsuario();
+        String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername(), userDetails.getRole());
+        String refreshToken = Token.crearRefreshToken(userDetails.getUsername());
 
-        String token = Token.crearToken(userDetails.getUser(), userDetails.getUsername());
+        Map<String, Object> usuarioMap = new HashMap<>();
+        usuarioMap.put("idUsuario", userDetails.getIdUser());
+        usuarioMap.put("nombre", userDetails.getUser());
+        usuarioMap.put("apellido", userDetails.getLastnameUser());
+        usuarioMap.put("rol", userDetails.getRole());
 
-        String rol = "Desconocido";
-        if (usuario instanceof Paciente) {
-            rol = "Paciente";
-        } else if (usuario instanceof Medico) {
-            rol = "Medico";
-        }
-
-        UsuarioDTO usuarioDTO = new UsuarioDTO(
-                usuario.getIdUsuario(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                rol
-        );
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("token", token);
+        responseBody.put("refreshToken", refreshToken);
+        responseBody.put("usuario", usuarioMap);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String jsonResponse = """
-                {
-                    "token": "%s",
-                    "usuario": {
-                        "idUsuario": %d,
-                        "nombre": "%s",
-                        "apellido": "%s",
-                        "rol": "%s"
-                    }
-                }
-                """.formatted(token, usuarioDTO.idUsuario(), usuarioDTO.nombre(), usuarioDTO.apellido(), usuarioDTO.rol());
+        new ObjectMapper().writeValue(response.getOutputStream(), responseBody);
+    }
 
-        response.getWriter().write(jsonResponse);
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              AuthenticationException failed)
+            throws IOException, ServletException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String mensaje = "Credenciales inválidas";
+        if (failed.getCause() instanceof UsernameNotFoundException usernameEx) {
+            mensaje = usernameEx.getMessage();
+        } else if (failed.getMessage() != null && !failed.getMessage().isBlank()) {
+            mensaje = failed.getMessage();
+        }
+
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("status", 401);
+        errorBody.put("message", mensaje);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getOutputStream(), errorBody);
     }
 }

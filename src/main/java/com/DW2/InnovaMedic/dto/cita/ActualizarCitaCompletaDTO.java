@@ -1,4 +1,4 @@
-package com.DW2.InnovaMedic.dto;
+package com.DW2.InnovaMedic.dto.cita;
 
 public record ActualizarCitaCompletaDTO(
         Integer id,

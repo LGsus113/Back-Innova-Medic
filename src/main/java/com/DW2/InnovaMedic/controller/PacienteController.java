@@ -1,10 +1,13 @@
 package com.DW2.InnovaMedic.controller;
 
-import com.DW2.InnovaMedic.dto.CitaDTO;
-import com.DW2.InnovaMedic.entity.Paciente;
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.cita.MedicoSegunEspecialidadDTO;
+import com.DW2.InnovaMedic.dto.registro.PacienteRegistroDTO;
+import com.DW2.InnovaMedic.entity.Cita;
+import com.DW2.InnovaMedic.service.MaintenanceMedico;
 import com.DW2.InnovaMedic.service.MaintenancePaciente;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.DW2.InnovaMedic.util.ResponseUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,56 +15,58 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/pacientes")
 public class PacienteController {
-    @Autowired
-    MaintenancePaciente maintenancePaciente;
+    private final MaintenancePaciente maintenancePaciente;
+    private final MaintenanceMedico maintenanceMedico;
 
     @GetMapping("/cita/{id}")
-    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id) {
-        try {
-            List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id);
+    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id, @RequestParam(required = false) Cita.Estado estado) {
+        List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id, estado);
 
-            if (citasPaciente.isEmpty()) {
-                return ResponseEntity.ok().body(
-                        Map.of(
-                                "status", HttpStatus.OK.value(),
-                                "message", "El paciente existe, pero no tiene citas registradas.",
-                                "idPaciente", id
-                        )
-                );
-            }
-
-            return ResponseEntity.ok(citasPaciente);
-        } catch (IllegalArgumentException ie) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    Map.of(
-                            "status", HttpStatus.NOT_FOUND.value(),
-                            "error", "Paciente no encontrado",
-                            "message", ie.getMessage(),
-                            "idSolicitado", id
-                    )
-            );
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(
-                    Map.of(
-                            "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            "error", "Error interno al buscar citas",
-                            "message", "Error de búsqueda con código " + id + ": " + e.getMessage()
-                    )
-            );
+        if (citasPaciente.isEmpty()) {
+            return ResponseUtil.successWith(Map.of(
+                    "status", "success",
+                    "message", "El paciente existe, pero no tiene citas registradas.",
+                    "idPaciente", id
+            ));
         }
+
+        return ResponseUtil.success(citasPaciente);
+    }
+
+    @GetMapping("/especialidades")
+    public ResponseEntity<?> listarEspecialidadesUnicas() {
+        List<String> especialidades = maintenanceMedico.obtenerEspecialidadesUnicas();
+
+        if (especialidades.isEmpty()) {
+            return ResponseUtil.successWith(Map.of(
+                    "status", "success",
+                    "message", "No se encontraron especialidades disponibles"
+            ));
+        }
+
+        return ResponseUtil.success(especialidades);
+    }
+
+    @GetMapping("/lista-medicos")
+    public ResponseEntity<?> listaMedicosPorEspecialidad(@RequestParam String especialidad) {
+        List<MedicoSegunEspecialidadDTO> medicos = maintenanceMedico.listarMedicosPorEspecialidad(especialidad);
+
+        if (medicos.isEmpty()) {
+            return ResponseUtil.successWith(Map.of(
+                    "status", "success",
+                    "message", "No hay médicos registrados con la especialidad: " + especialidad
+            ));
+        }
+
+        return ResponseUtil.success(medicos);
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrarPaciente(@RequestBody Paciente paciente) {
-        try {
-            maintenancePaciente.registrarPaciente(paciente);
-            return ResponseEntity.ok(Map.of("message", "Usuario registrado con exito"));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("errorMsg", "Hubo error al registrar usuario: " + e.getMessage()));
-        }
+    public ResponseEntity<?> registrarPaciente(@RequestBody PacienteRegistroDTO pacienteRegistroDTO) {
+        maintenancePaciente.registrarPaciente(pacienteRegistroDTO);
+        return ResponseUtil.successMessage("Usuario registrado con éxito");
     }
 }

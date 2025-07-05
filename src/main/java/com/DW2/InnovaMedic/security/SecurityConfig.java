@@ -1,13 +1,15 @@
 package com.DW2.InnovaMedic.security;
 
+import com.DW2.InnovaMedic.security.JWTExceptions.CustomAccessDeniedHandler;
+import com.DW2.InnovaMedic.security.JWTExceptions.CustomAuthenticationEntryPoint;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,9 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
-
-    private final UserDetailsService userDetailsService;
     private final JWTAuthotizationFilter jwtAuthotizationFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
@@ -29,11 +31,12 @@ public class SecurityConfig {
         return http
                 .cors(cors -> {
                 })
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/pacientes/registrar", "/api/medicos/registrar").permitAll()
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(SecurityEndpointRules::security)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .addFilter(jwtAuthenticationFilter)
                 .addFilterBefore(jwtAuthotizationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -49,5 +52,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
 }

@@ -1,11 +1,12 @@
 package com.DW2.InnovaMedic.service;
 
-import com.DW2.InnovaMedic.dto.CitaDTO;
-import com.DW2.InnovaMedic.entity.Paciente;
+import com.DW2.InnovaMedic.dto.cita.CitaDTO;
+import com.DW2.InnovaMedic.dto.registro.PacienteRegistroDTO;
+import com.DW2.InnovaMedic.entity.Cita;
 
 import java.util.List;
 
 public interface MaintenancePaciente {
-    void registrarPaciente(Paciente paciente) throws Exception;
-    List<CitaDTO> obtenerCitasPaciente(Integer id) throws Exception;
+    void registrarPaciente(PacienteRegistroDTO pacienteRegistroDTO);
+    List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado);
 }

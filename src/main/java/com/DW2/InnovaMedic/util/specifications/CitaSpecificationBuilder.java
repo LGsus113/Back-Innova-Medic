@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CitaSpecificationBuilder {
-    public static Specification<Cita> filterCitas(Integer id, Cita.Estado estado, TipoBusqueda tipoBusqueda) {
+    public static Specification<Cita> filterCitas(Integer id, Cita.Estado estado, TipoBusqueda tipoBusqueda, String nombreUsuario) {
         String usuario = switch (tipoBusqueda) {
             case PACIENTE -> "paciente";
             case MEDICO -> "medico";
@@ -20,6 +20,13 @@ public class CitaSpecificationBuilder {
 
             if (estado != null) {
                 predicates.add(criteriaBuilder.equal(root.get("estado"), estado));
+            }
+
+            if (nombreUsuario != null && !nombreUsuario.trim().isEmpty()){
+                predicates.add(criteriaBuilder.like(
+                   criteriaBuilder.lower(root.get(usuario).get("nombre")),
+                   "%" + nombreUsuario.toLowerCase() + "%"
+                ));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

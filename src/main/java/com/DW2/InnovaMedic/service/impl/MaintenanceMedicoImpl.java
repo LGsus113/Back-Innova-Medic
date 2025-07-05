@@ -55,12 +55,12 @@ public class MaintenanceMedicoImpl implements MaintenanceMedico {
 
     @Override
     @Cacheable(value = "citasMedico")
-    public List<CitaDTO> obtenerCitasMedico(Integer id, Cita.Estado estado) {
+    public List<CitaDTO> obtenerCitasMedico(Integer id, Cita.Estado estado, String nombreUsuario) {
         if (!medicoRepository.existsById(id)) {
             throw new IllegalArgumentException("Medico con Id " + id + " no existe");
         }
 
-        Specification<Cita> spec = CitaSpecificationBuilder.filterCitas(id, estado, CitaSpecificationBuilder.TipoBusqueda.MEDICO);
+        Specification<Cita> spec = CitaSpecificationBuilder.filterCitas(id, estado, CitaSpecificationBuilder.TipoBusqueda.MEDICO, nombreUsuario);
         List<Cita> citas = citaRepository.findAll(spec);
 
         return responseCitas(citas);

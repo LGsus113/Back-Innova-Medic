@@ -53,12 +53,12 @@ public class MaintanancePacienteImpl implements MaintenancePaciente {
 
     @Override
     @Cacheable(value = "citasPaciente")
-    public List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado) {
+    public List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado, String nombreUsuario) {
         if (!pacienteRepository.existsById(id)) {
             throw new IllegalArgumentException("Paciente con Id " + id + " no existe");
         }
 
-        Specification<Cita> spec = CitaSpecificationBuilder.filterCitas(id, estado, CitaSpecificationBuilder.TipoBusqueda.PACIENTE);
+        Specification<Cita> spec = CitaSpecificationBuilder.filterCitas(id, estado, CitaSpecificationBuilder.TipoBusqueda.PACIENTE, nombreUsuario);
         List<Cita> citas = citaRepository.findAll(spec);
 
         return responseCitas(citas);

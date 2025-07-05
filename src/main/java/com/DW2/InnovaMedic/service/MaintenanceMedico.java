@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface MaintenanceMedico {
     void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO);
-    List<CitaDTO> obtenerCitasMedico(Integer id, Cita.Estado estado);
+    List<CitaDTO> obtenerCitasMedico(Integer id, Cita.Estado estado, String nombreUsuario);
     List<String> obtenerEspecialidadesUnicas();
     List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad);
 }

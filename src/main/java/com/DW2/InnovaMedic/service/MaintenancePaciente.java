@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface MaintenancePaciente {
     void registrarPaciente(PacienteRegistroDTO pacienteRegistroDTO);
-    List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado);
+    List<CitaDTO> obtenerCitasPaciente(Integer id, Cita.Estado estado, String nombreUsuario);
 }

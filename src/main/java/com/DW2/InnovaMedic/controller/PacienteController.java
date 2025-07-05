@@ -22,8 +22,8 @@ public class PacienteController {
     private final MaintenanceMedico maintenanceMedico;
 
     @GetMapping("/cita/{id}")
-    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id, @RequestParam(required = false) Cita.Estado estado) {
-        List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id, estado);
+    public ResponseEntity<?> listaCitasPaciente(@PathVariable Integer id, @RequestParam(required = false) Cita.Estado estado, @PathVariable String nombreUsuario){
+        List<CitaDTO> citasPaciente = maintenancePaciente.obtenerCitasPaciente(id, estado, nombreUsuario);
 
         if (citasPaciente.isEmpty()) {
             return ResponseUtil.successWith(Map.of(

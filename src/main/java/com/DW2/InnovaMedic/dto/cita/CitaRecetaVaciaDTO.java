@@ -8,6 +8,6 @@ public record CitaRecetaVaciaDTO(
         Integer idPaciente,
         LocalDate fecha,
         LocalTime hora,
-        String tratamiento
+        String diagnostico
 ) {
 }

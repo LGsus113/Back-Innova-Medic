@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -32,9 +31,6 @@ public class Cita {
 
     @Column(name = "HORA", nullable = false)
     private LocalTime hora;
-
-    @Column(name = "TRATAMIENTO")
-    private String tratamiento;
 
     @Column(name = "NOTAS_MEDICAS", columnDefinition = "TEXT")
     private String notasMedicas;

@@ -95,7 +95,6 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         documento.add(new Paragraph("\n"));
 
         documento.add(new Paragraph("Tratamiento", subTituloFont));
-        documento.add(new Paragraph(citaDTO.tratamiento(), normalFont));
         documento.add(new Paragraph("\n"));
 
         documento.add(new Paragraph("Medicamentos recetados", subTituloFont));

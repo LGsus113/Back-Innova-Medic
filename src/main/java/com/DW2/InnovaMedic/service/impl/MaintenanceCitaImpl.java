@@ -162,17 +162,27 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         for (MedicamentoRecetaRequestDTO nuevo : listaMedicamentos) {
             boolean yaExiste = medicamentosActuales.stream().anyMatch(actual ->
-                    actual.getNombre().equalsIgnoreCase(nuevo.nombre().trim()) &&
+                    actual.getNombreGenerico().equalsIgnoreCase(nuevo.nombreGenerico().trim()) &&
+                            actual.getNombreFarmaceutico().equalsIgnoreCase(nuevo.nombreFarmaceutico().trim()) &&
+                            actual.getPresentacion().equalsIgnoreCase(nuevo.presentacion().trim()) &&
+                            actual.getViaAdministracion().equalsIgnoreCase(nuevo.viaAdministracion().trim()) &&
                             actual.getDosis().equalsIgnoreCase(nuevo.dosis().trim()) &&
-                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim())
+                            actual.getFrecuencia().equalsIgnoreCase(nuevo.frecuencia().trim()) &&
+                            actual.getIndicacionesUso().equalsIgnoreCase(nuevo.indicacionesUso().trim()) &&
+                            actual.getDuracionTratamiento().equalsIgnoreCase(nuevo.duracionTratamiento().trim())
             );
 
             if (!yaExiste) {
                 MedicamentoReceta mr = new MedicamentoReceta();
                 mr.setReceta(receta);
-                mr.setNombre(nuevo.nombre().trim());
+                mr.setNombreGenerico(nuevo.nombreGenerico().trim());
+                mr.setNombreFarmaceutico(nuevo.nombreFarmaceutico().trim());
+                mr.setPresentacion(nuevo.presentacion().trim());
+                mr.setViaAdministracion(nuevo.viaAdministracion().trim());
                 mr.setDosis(nuevo.dosis().trim());
                 mr.setFrecuencia(nuevo.frecuencia().trim());
+                mr.setIndicacionesUso(nuevo.indicacionesUso().trim());
+                mr.setDuracionTratamiento(nuevo.duracionTratamiento().trim());
                 medicamentoRecetaRepository.save(mr);
             }
         }
@@ -207,9 +217,14 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         MedicamentoReceta medicamentoReceta = medicamentoRecetaRepository.findById(medicamentoRecetaDTO.idMedicamento())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medicamento no encontrado"));
 
-        medicamentoReceta.setNombre(medicamentoRecetaDTO.nombre().trim());
+        medicamentoReceta.setNombreGenerico(medicamentoRecetaDTO.nombreGenerico().trim());
+        medicamentoReceta.setNombreFarmaceutico(medicamentoRecetaDTO.nombreFarmaceutico().trim());
+        medicamentoReceta.setPresentacion(medicamentoRecetaDTO.presentacion().trim());
+        medicamentoReceta.setViaAdministracion(medicamentoRecetaDTO.viaAdministracion().trim());
         medicamentoReceta.setDosis(medicamentoRecetaDTO.dosis().trim());
         medicamentoReceta.setFrecuencia(medicamentoRecetaDTO.frecuencia().trim());
+        medicamentoReceta.setIndicacionesUso(medicamentoRecetaDTO.indicacionesUso().trim());
+        medicamentoReceta.setDuracionTratamiento(medicamentoRecetaDTO.duracionTratamiento().trim());
 
         medicamentoRecetaRepository.save(medicamentoReceta);
     }

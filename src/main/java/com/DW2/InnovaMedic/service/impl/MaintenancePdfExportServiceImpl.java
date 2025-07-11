@@ -55,7 +55,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         String nombreMedico = medicoResumenDTO.nombre() + " " + medicoResumenDTO.apellido();
         String especialidad = medicoResumenDTO.especialidad();
 
-        Document documento = new Document(PageSize.A4, 50, 50, 50, 50);
+        Document documento = new Document(PageSize.A4.rotate(), 50, 50, 50, 50);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter.getInstance(documento, baos);
         documento.open();
@@ -105,7 +105,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         table.setSpacingAfter(10f);
         table.setWidths(new float[]{1f, 4f, 2f, 3f});
 
-        String[] headers = {"N°", "Nombre", "Dosis", "Frecuencia"};
+        String[] headers = {"N°", "Nombre Generico", "Nombre Farmaceutico", "Presentacion", "Via Administracion" , "Dosis", "Frecuencia", "Indicaciones de Uso", "Duracion de Tratamiento"};
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, boldFont));
             cell.setBackgroundColor(grisClaro);
@@ -118,20 +118,30 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         for (int i = 0; i < medicamentos.size(); i++) {
             MedicamentoRecetaDTO med = medicamentos.get(i);
 
-            PdfPCell cellNum = new PdfPCell(new Phrase(String.valueOf(i + 1)));
-            PdfPCell cellNombre = new PdfPCell(new Phrase(med.nombre()));
-            PdfPCell cellDosis = new PdfPCell(new Phrase(med.dosis()));
-            PdfPCell cellFrecuencia = new PdfPCell(new Phrase(med.frecuencia()));
+            table.addCell(new PdfPCell(new Phrase(String.valueOf(i + 1), normalFont)));
 
-            for (PdfPCell c : List.of(cellNum, cellNombre, cellDosis, cellFrecuencia)) {
-                c.setPadding(6);
-                c.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            }
+            String medicInfo = String.format(
+                    "%s\n%s\nPresentación: %s\nVía: %s",
+                    med.nombreGenerico(),
+                    med.nombreFarmaceutico(),
+                    med.presentacion(),
+                    med.viaAdministracion()
+            );
+            table.addCell(new PdfPCell(new Phrase(medicInfo, normalFont)));
 
-            table.addCell(cellNum);
-            table.addCell(cellNombre);
-            table.addCell(cellDosis);
-            table.addCell(cellFrecuencia);
+            String dosisFrecuencia = String.format(
+                    "Dosis: %s\nFrecuencia: %s",
+                    med.dosis(),
+                    med.frecuencia()
+            );
+            table.addCell(new PdfPCell(new Phrase(dosisFrecuencia, normalFont)));
+
+            String indicDuracion = String.format(
+                    "Indicaciones: %s\nDuración: %s",
+                    med.indicacionesUso(),
+                    med.duracionTratamiento()
+            );
+            table.addCell(new PdfPCell(new Phrase(indicDuracion, normalFont)));
         }
         documento.add(table);
 

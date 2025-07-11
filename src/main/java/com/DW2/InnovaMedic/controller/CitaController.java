@@ -5,6 +5,7 @@ import com.DW2.InnovaMedic.dto.slot.SlotPorDiaDTO;
 import com.DW2.InnovaMedic.entity.Cita;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
 import com.DW2.InnovaMedic.service.MaintenanceDisponibilidadMedica;
+import com.DW2.InnovaMedic.service.MaintenancePdfExportService;
 import com.DW2.InnovaMedic.util.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class CitaController {
     private final MaintenanceCita maintenanceCita;
     private final MaintenanceDisponibilidadMedica maintenanceDisponibilidadMedica;
+    private final MaintenancePdfExportService maintenancePdfExportService;
 
     @GetMapping("/disponibilidad")
     public ResponseEntity<?> obtenerSlotsDisponibles(
@@ -46,7 +48,13 @@ public class CitaController {
 
     @PostMapping("/receta/agregar-medicamento")
     public ResponseEntity<?> agregarMedicamentosReceta(@RequestBody AgregarMedicamentoRecetaDTO medicamentoRecetaDTO) {
+        Integer idCita = medicamentoRecetaDTO.idCita();
+        maintenancePdfExportService.eliminarArchivo(idCita);
+
         maintenanceCita.agregarMedicamento(medicamentoRecetaDTO.idCita(), medicamentoRecetaDTO.listaMedicamentos());
+
+        maintenancePdfExportService.generarPDFAsync(idCita);
+
         return ResponseUtil.successMessage("Medicamentos agregados correctamente");
     }
 
@@ -69,6 +77,12 @@ public class CitaController {
                 Cita.Estado.Finalizada
         );
 
+        try {
+            maintenancePdfExportService.generarPDFAsync(actualizarCitaCompletaDTO.id());
+        } catch (Exception e) {
+            throw new IllegalStateException("Error al inicar la generacion del PDF: " + e.getMessage());
+        }
+
         return ResponseUtil.success(Map.of(
                 "message", "Datos actualizados y medicamentos agregados",
                 "estadoActualizacion", estadoActualizado
@@ -77,19 +91,35 @@ public class CitaController {
 
     @PutMapping("/actualizar/info-cita")
     public ResponseEntity<?> actualizarInformacionCita(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
+        Integer idCita = actualizarCitaCompletaDTO.id();
+        maintenancePdfExportService.eliminarArchivo(idCita);
+
         maintenanceCita.actualizarInformacionMedicaCita(actualizarCitaCompletaDTO.id(), actualizarCitaCompletaDTO.actionCitaMedicoDTO());
+
+        maintenancePdfExportService.generarPDFAsync(idCita);
+
         return ResponseUtil.successMessage("Datos actualizados");
     }
 
-    @PutMapping("/actualizar/medicamento")
-    public ResponseEntity<?> actualizarMedicamento(@RequestBody MedicamentoRecetaDTO medicamentoRecetaDTO) {
+    @PutMapping("/actualizar/medicamento/{idCita}")
+    public ResponseEntity<?> actualizarMedicamento(@PathVariable Integer idCita, @RequestBody MedicamentoRecetaDTO medicamentoRecetaDTO) {
+        maintenancePdfExportService.eliminarArchivo(idCita);
+
         maintenanceCita.actualizarMedicamento(medicamentoRecetaDTO);
+
+        maintenancePdfExportService.generarPDFAsync(idCita);
+
         return ResponseUtil.successMessage("Medicamento actualizado");
     }
 
-    @DeleteMapping("/delete-medicamento/{id}")
-    public ResponseEntity<?> eliminarMedicamento(@PathVariable Integer id) {
+    @DeleteMapping("/delete-medicamento/{idCita}/{id}")
+    public ResponseEntity<?> eliminarMedicamento(@PathVariable Integer idCita, @PathVariable Integer id) {
+        maintenancePdfExportService.eliminarArchivo(idCita);
+
         maintenanceCita.eliminarMedicamento(id);
+
+        maintenancePdfExportService.generarPDFAsync(idCita);
+
         return ResponseUtil.successMessage("Medicamento eliminado");
     }
 }

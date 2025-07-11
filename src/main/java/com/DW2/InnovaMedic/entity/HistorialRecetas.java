@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "HISTORIAL_RECETAS")
 @Data
-public class Historial_Recetas {
+public class HistorialRecetas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
@@ -26,4 +26,8 @@ public class Historial_Recetas {
     @ManyToOne
     @JoinColumn(name = "ID_MEDICO", nullable = false)
     private Medico medico;
+
+    @ManyToOne
+    @JoinColumn(name = "ID_CITAS", nullable = false)
+    private Cita cita;
 }

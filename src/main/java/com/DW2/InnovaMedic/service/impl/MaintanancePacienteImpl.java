@@ -21,8 +21,8 @@ import java.util.List;
 import static com.DW2.InnovaMedic.util.UserUtil.responseCitas;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class MaintanancePacienteImpl implements MaintenancePaciente {
     private final UsuarioRepository usuarioRepository;
     private final PacienteRepository pacienteRepository;

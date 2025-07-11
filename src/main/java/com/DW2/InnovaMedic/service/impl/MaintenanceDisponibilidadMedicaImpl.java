@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class MaintenanceDisponibilidadMedicaImpl implements MaintenanceDisponibilidadMedica {
     private final DisponibilidadMedicaRepository disponibilidadMedicaRepository;
     private final CitaRepository citaRepository;

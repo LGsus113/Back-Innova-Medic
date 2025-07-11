@@ -21,4 +21,8 @@ public class UserUtil {
                 .map(cita -> CitaDTO.fromEntity(cita, cita.getReceta()))
                 .toList();
     }
+
+    public static String formatPdfFirebase(Integer idCita) {
+        return "recetas/receta-" + idCita + ".pdf";
+    }
 }

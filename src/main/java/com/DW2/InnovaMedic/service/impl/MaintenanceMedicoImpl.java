@@ -23,8 +23,8 @@ import java.util.List;
 import static com.DW2.InnovaMedic.util.UserUtil.responseCitas;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class MaintenanceMedicoImpl implements MaintenanceMedico {
     private final UsuarioRepository usuarioRepository;
     private final MedicoRepository medicoRepository;

@@ -15,17 +15,6 @@ import java.util.Map;
 public class PDFController {
     private final MaintenancePdfExportService maintenancePdfExportService;
 
-    @PostMapping("/solicitar/cita/{idCita}")
-    public ResponseEntity<?> solicitarPDF(@PathVariable Integer idCita) {
-        maintenancePdfExportService.validarPDFGenerable(idCita);
-        maintenancePdfExportService.generarPDFAsync(idCita);
-
-        return ResponseUtil.accepted(Map.of(
-                "id", idCita,
-                "mensaje", "El PDF está en proceso de generación"
-        ));
-    }
-
     @GetMapping("/estado/receta")
     public ResponseEntity<?> estadoPDF(@RequestParam Integer idCita) {
         boolean listo = maintenancePdfExportService.estadoPDF(idCita);

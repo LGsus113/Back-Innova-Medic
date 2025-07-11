@@ -1,14 +1,17 @@
 package com.DW2.InnovaMedic.service.impl;
 
 import com.DW2.InnovaMedic.dto.cita.*;
-import com.DW2.InnovaMedic.entity.Historial_Recetas;
+import com.DW2.InnovaMedic.entity.Cita;
+import com.DW2.InnovaMedic.entity.HistorialRecetas;
 import com.DW2.InnovaMedic.entity.Medico;
 import com.DW2.InnovaMedic.entity.Paciente;
+import com.DW2.InnovaMedic.repository.CitaRepository;
 import com.DW2.InnovaMedic.repository.HistorialRecetasRepository;
 import com.DW2.InnovaMedic.repository.MedicoRepository;
 import com.DW2.InnovaMedic.repository.PacienteRepository;
 import com.DW2.InnovaMedic.service.MaintenanceCita;
 import com.DW2.InnovaMedic.service.MaintenancePdfExportService;
+import com.DW2.InnovaMedic.util.UserUtil;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -34,6 +37,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportService {
     private final MaintenanceCita maintenanceCita;
+    private final CitaRepository citaRepository;
     private final HistorialRecetasRepository historialRecetasRepository;
     private final PacienteRepository pacienteRepository;
     private final MedicoRepository medicoRepository;
@@ -145,11 +149,6 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         return baos.toByteArray();
     }
 
-
-    private String formatPdfFirebase(Integer idCita) {
-        return "recetas/receta-" + idCita + ".pdf";
-    }
-
     private String subirPdfAFirebase(String ruta, byte[] pdfBytes) {
         BlobId blobId = BlobId.of(BUCKET_NAME, ruta);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -161,28 +160,24 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
                "/o/" + URLEncoder.encode(ruta, StandardCharsets.UTF_8) + "?alt=media";
     }
 
-    private void guardarHistorial(Integer idMedico, Integer idPaciente, String urlPDF) {
+    private void guardarHistorial(Integer idMedico, Integer idPaciente, Integer idCitas, String urlPDF) {
         Medico medico = medicoRepository.findById(idMedico)
                 .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
         Paciente paciente = pacienteRepository.findById(idPaciente)
                 .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+        Cita cita = citaRepository.findByIdWithRecetaAndMedicamentos(idCitas)
+                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
 
-        Historial_Recetas historial = new Historial_Recetas();
+        HistorialRecetas historial = historialRecetasRepository.findByCita_IdCitas(idCitas)
+                .orElse(new HistorialRecetas());
+
         historial.setUrl_pdf(urlPDF);
         historial.setFecha_generado(LocalDate.now());
         historial.setPaciente(paciente);
         historial.setMedico(medico);
+        historial.setCita(cita);
+
         historialRecetasRepository.save(historial);
-    }
-
-    @Override
-    public void validarPDFGenerable(Integer idCita) {
-        CitaDTO citaDTO = maintenanceCita.obtenerCitaCompletaPorID(idCita);
-        RecetaDTO receta = citaDTO.recetaDTO();
-
-        if (receta == null || receta.medicamentos() == null || receta.medicamentos().isEmpty()) {
-            throw new IllegalArgumentException("La cita no contiene receta o no tiene medicamentos.");
-        }
     }
 
     @Async
@@ -191,28 +186,28 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         CitaDTO citaDTO = maintenanceCita.obtenerCitaCompletaPorID(idCita);
         byte[] pdf = exportarRecetaComoPDF(citaDTO);
 
-        String pdfFirebase = formatPdfFirebase(idCita);
+        String pdfFirebase = UserUtil.formatPdfFirebase(idCita);
         String urlPDF = subirPdfAFirebase(pdfFirebase, pdf);
 
-        guardarHistorial(citaDTO.medico().idUsuario(), citaDTO.paciente().idUsuario(), urlPDF);
+        guardarHistorial(citaDTO.medico().idUsuario(), citaDTO.paciente().idUsuario(), citaDTO.idCitas(), urlPDF);
     }
 
     @Override
     public boolean estadoPDF(Integer idCita) {
-        String pdfFirebase = formatPdfFirebase(idCita);
+        String pdfFirebase = UserUtil.formatPdfFirebase(idCita);
         return storage.get(BlobId.of(BUCKET_NAME, pdfFirebase)) != null;
     }
 
     @Override
     public String descargarPDFGenerado(Integer idCita) {
-        String pdfFirebase = formatPdfFirebase(idCita);
-        return "https://firebasestorage.googleapis.com/v0/b/innovamedic-2e69b.firebasestorage.app/o/" +
-               URLEncoder.encode(pdfFirebase, StandardCharsets.UTF_8) + "?alt=media";
+        HistorialRecetas historialRecetas = historialRecetasRepository.findByCita_IdCitas(idCita)
+                .orElseThrow(() -> new IllegalArgumentException("No existe PDF registrado para esta cita"));
+        return historialRecetas.getUrl_pdf();
     }
 
     @Override
     public void eliminarArchivo(Integer idCita) {
-        String pdfFirebase = formatPdfFirebase(idCita);
+        String pdfFirebase = UserUtil.formatPdfFirebase(idCita);
         storage.delete(BlobId.of(BUCKET_NAME, pdfFirebase));
     }
 }

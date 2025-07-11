@@ -10,17 +10,42 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
     private final CitaRepository citaRepository;
     private final RecetaRepository recetaRepository;
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
+
+    private Cita guardarCita(CitaRecetaVaciaDTO citaRecetaVaciaDTO, Medico medico, Paciente paciente) {
+        Cita cita = new Cita();
+        cita.setMedico(medico);
+        cita.setPaciente(paciente);
+        cita.setFecha(citaRecetaVaciaDTO.fecha());
+        cita.setHora(citaRecetaVaciaDTO.hora());
+        cita.setTratamiento(citaRecetaVaciaDTO.tratamiento());
+        cita.setNotasMedicas("aun no detallado");
+        cita.setDiagnostico("aun no detallado");
+        cita.setEstado(Cita.Estado.Pendiente);
+
+        return citaRepository.save(cita);
+    }
+
+    private void guardarRecetaParaCita(LocalDate fecha, Cita cita) {
+        Receta receta = new Receta();
+        receta.setCita(cita);
+        receta.setFecha(fecha);
+        receta.setInstruccionesAdicionales("aun no detallado");
+        receta.setFirmaMedico("aun no detallado");
+
+        recetaRepository.save(receta);
+    }
 
     @Override
     public CitaDTO obtenerCitaCompletaPorID(Integer idCita) {
@@ -39,29 +64,11 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
         Medico medico = medicoRepository.findById(citaRecetaVaciaDTO.idMedico())
                 .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
-
         Paciente paciente = pacienteRepository.findById(citaRecetaVaciaDTO.idPaciente())
                 .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
 
-        Cita cita = new Cita();
-        cita.setMedico(medico);
-        cita.setPaciente(paciente);
-        cita.setFecha(citaRecetaVaciaDTO.fecha());
-        cita.setHora(citaRecetaVaciaDTO.hora());
-        cita.setTratamiento(citaRecetaVaciaDTO.tratamiento());
-        cita.setNotasMedicas("aun no detallado");
-        cita.setDiagnostico("aun no detallado");
-        cita.setEstado(Cita.Estado.Pendiente);
-
-        Cita citaGuardada = citaRepository.save(cita);
-
-        Receta receta = new Receta();
-        receta.setCita(citaGuardada);
-        receta.setFecha(citaRecetaVaciaDTO.fecha());
-        receta.setInstruccionesAdicionales("aun no detallado");
-        receta.setFirmaMedico("aun no detallado");
-
-        recetaRepository.save(receta);
+        Cita citaGuardada = guardarCita(citaRecetaVaciaDTO, medico, paciente);
+        guardarRecetaParaCita(citaRecetaVaciaDTO.fecha(), citaGuardada);
 
         return citaGuardada.getIdCitas();
     }

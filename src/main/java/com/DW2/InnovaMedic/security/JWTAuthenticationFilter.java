@@ -1,7 +1,7 @@
 package com.DW2.InnovaMedic.security;
 
 import com.DW2.InnovaMedic.entity.Auth;
-import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
+import com.DW2.InnovaMedic.service.session.UsuarioDetailImpl;
 import com.DW2.InnovaMedic.util.Token;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

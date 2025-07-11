@@ -1,8 +1,8 @@
 package com.DW2.InnovaMedic.controller;
 
 import com.DW2.InnovaMedic.service.MaintenanceUsuario;
-import com.DW2.InnovaMedic.service.impl.UsuarioDetailImpl;
-import com.DW2.InnovaMedic.service.impl.UsuarioServiceImpl;
+import com.DW2.InnovaMedic.service.session.UsuarioDetailImpl;
+import com.DW2.InnovaMedic.service.session.UsuarioServiceImpl;
 import com.DW2.InnovaMedic.util.ResponseUtil;
 import com.DW2.InnovaMedic.util.Token;
 import lombok.RequiredArgsConstructor;

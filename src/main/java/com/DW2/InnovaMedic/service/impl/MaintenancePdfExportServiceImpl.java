@@ -55,7 +55,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         String nombreMedico = medicoResumenDTO.nombre() + " " + medicoResumenDTO.apellido();
         String especialidad = medicoResumenDTO.especialidad();
 
-        Document documento = new Document(PageSize.A4.rotate(), 50, 50, 50, 50);
+        Document documento = new Document(PageSize.A4, 50, 50, 50, 50);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter.getInstance(documento, baos);
         documento.open();
@@ -103,14 +103,16 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         table.setWidthPercentage(100);
         table.setSpacingBefore(10f);
         table.setSpacingAfter(10f);
-        table.setWidths(new float[]{1f, 4f, 2f, 3f});
+        table.setWidths(new float[]{1f, 3f, 3f, 3f});
 
-        String[] headers = {"N°", "Nombre Generico", "Nombre Farmaceutico", "Presentacion", "Via Administracion" , "Dosis", "Frecuencia", "Indicaciones de Uso", "Duracion de Tratamiento"};
+        String[] headers = {"N°", "Medicamento", "Dosis y Frecuencia", "Indicaciones y Duración"};
         for (String h : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(h, boldFont));
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             cell.setBackgroundColor(grisClaro);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setPadding(8);
+            cell.setPadding(6);
             table.addCell(cell);
         }
 

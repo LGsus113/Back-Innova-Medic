@@ -24,7 +24,7 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
 
     private void validarTransicionEstado(Cita.Estado estadoActual, Cita.Estado nuevoEstado) {
-        if (estadoActual == nuevoEstado) return;
+        if (estadoActual == Cita.Estado.Finalizada && nuevoEstado == Cita.Estado.Finalizada) return;
 
         switch (estadoActual) {
             case Pendiente:
@@ -195,12 +195,14 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
 
     @Override
     @CacheEvict(value = {"citasPaciente", "citasMedico", "slotsDisponibles"}, allEntries = true)
-    public void terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
+    public String terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO actionCitaMedicoDTO, String nombreMedico) {
         actualizarInformacionCita(idCita, actionCitaMedicoDTO.notasMedicas(), null);
 
         actualizarReceta(idCita, actionCitaMedicoDTO.instruccionesAdicionales(), nombreMedico);
 
         medicamentosReceta(idCita, actionCitaMedicoDTO.medicamentos());
+
+        return actualizarEstadoCita(idCita, Cita.Estado.Finalizada);
     }
 
     @Override

@@ -11,7 +11,7 @@ public interface MaintenanceCita {
 
     String actualizarEstadoCita(Integer idCita, Cita.Estado nuevoEstado);
 
-    void terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico);
+    String terminarDeRegistrarCitaCompleta(Integer idCita, ActionCitaMedicoDTO request, String nombreMedico);
 
     void actualizarInformacionMedicaCita(Integer idCita, ActionCitaMedicoDTO request);
 

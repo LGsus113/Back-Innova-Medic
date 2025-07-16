@@ -66,15 +66,10 @@ public class CitaController {
 
     @PutMapping("/finalizar/informacion")
     public ResponseEntity<?> terminarRegistroCitaCompleta(@RequestBody ActualizarCitaCompletaDTO actualizarCitaCompletaDTO) {
-        maintenanceCita.terminarDeRegistrarCitaCompleta(
+        String estadoActualizado = maintenanceCita.terminarDeRegistrarCitaCompleta(
                 actualizarCitaCompletaDTO.id(),
                 actualizarCitaCompletaDTO.actionCitaMedicoDTO(),
                 actualizarCitaCompletaDTO.nombreMedico()
-        );
-
-        String estadoActualizado = maintenanceCita.actualizarEstadoCita(
-                actualizarCitaCompletaDTO.id(),
-                Cita.Estado.Finalizada
         );
 
         try {

@@ -81,10 +81,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         separator.setLineColor(Color.LIGHT_GRAY);
         documento.add(separator);
 
-        documento.add(new Paragraph("\n"));
-
         documento.add(new Paragraph("Paciente: " + nombrePaciente, normalFont));
-        documento.add(new Paragraph("Grupo sanguíneo: " + grupoSanguineo, normalFont));
         documento.add(new Paragraph("Fecha: " + recetaDTO.fecha(), normalFont));
         documento.add(new Paragraph("Médico: " + nombreMedico, normalFont));
         documento.add(new Paragraph("Especialidad: " + especialidad, normalFont));
@@ -119,8 +116,6 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         for (int i = 0; i < medicamentos.size(); i++) {
             MedicamentoRecetaDTO med = medicamentos.get(i);
 
-            table.addCell(new PdfPCell(new Phrase(String.valueOf(i + 1), normalFont)));
-
             String medicInfo = String.format(
                     "%s\n%s\nPresentación: %s\nVía: %s",
                     med.nombreGenerico(),
@@ -128,21 +123,34 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
                     med.presentacion(),
                     med.viaAdministracion()
             );
-            table.addCell(new PdfPCell(new Phrase(medicInfo, normalFont)));
 
             String dosisFrecuencia = String.format(
                     "Dosis: %s\nFrecuencia: %s",
                     med.dosis(),
                     med.frecuencia()
             );
-            table.addCell(new PdfPCell(new Phrase(dosisFrecuencia, normalFont)));
 
             String indicDuracion = String.format(
                     "Indicaciones: %s\nDuración: %s",
                     med.indicacionesUso(),
                     med.duracionTratamiento()
             );
-            table.addCell(new PdfPCell(new Phrase(indicDuracion, normalFont)));
+
+            PdfPCell celdaNum = new PdfPCell(new Phrase(String.valueOf(i + 1), normalFont));
+            PdfPCell celdaMedicamento = new PdfPCell(new Phrase(medicInfo, normalFont));
+            PdfPCell celdaDosis = new PdfPCell(new Phrase(dosisFrecuencia, normalFont));
+            PdfPCell celdaIndicaciones = new PdfPCell(new Phrase(indicDuracion, normalFont));
+
+            for (PdfPCell cell : List.of(celdaNum, celdaMedicamento, celdaDosis, celdaIndicaciones)) {
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(8);
+            }
+
+            table.addCell(celdaNum);
+            table.addCell(celdaMedicamento);
+            table.addCell(celdaDosis);
+            table.addCell(celdaIndicaciones);
         }
         documento.add(table);
 

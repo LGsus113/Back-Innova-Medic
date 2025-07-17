@@ -4,15 +4,15 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "ESPECIALIDAD_MEDICO")
+@Table(name = "ESPECIALIDAD")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EspecialidadMedico {
+public class Especialidad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_ESPECIALIDAD")
@@ -30,4 +30,7 @@ public class EspecialidadMedico {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_CATEGORIA", nullable = false)
     private CategoriaEspecialidad categoria;
+
+    @ManyToMany(mappedBy = "especialidades")
+    private Set<Medico> medicos = new HashSet<>();
 }

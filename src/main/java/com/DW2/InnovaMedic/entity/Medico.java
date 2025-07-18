@@ -16,9 +16,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Medico extends Usuario {
-    @Column(name = "ESPECIALIDAD", nullable = false)
-    private String especialidad;
-
     @Column(name = "NUMERO_COLEGIADO", nullable = false)
     private String numeroColegiado;
 

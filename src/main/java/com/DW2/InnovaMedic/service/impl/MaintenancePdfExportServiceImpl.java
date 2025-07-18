@@ -53,7 +53,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         String nombrePaciente = pacienteResumenDTO.nombre() + " " + pacienteResumenDTO.apellido();
         String grupoSanguineo = pacienteResumenDTO.grupoSanguineo();
         String nombreMedico = medicoResumenDTO.nombre() + " " + medicoResumenDTO.apellido();
-        String especialidad = medicoResumenDTO.especialidad();
+        String especialidad = citaDTO.especialidad();
 
         Document documento = new Document(PageSize.A4, 50, 50, 50, 50);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -82,6 +82,7 @@ public class MaintenancePdfExportServiceImpl implements MaintenancePdfExportServ
         documento.add(separator);
 
         documento.add(new Paragraph("Paciente: " + nombrePaciente, normalFont));
+        documento.add(new Paragraph("Grupo sanguíneo: " + grupoSanguineo, normalFont));
         documento.add(new Paragraph("Fecha: " + recetaDTO.fecha(), normalFont));
         documento.add(new Paragraph("Médico: " + nombreMedico, normalFont));
         documento.add(new Paragraph("Especialidad: " + especialidad, normalFont));

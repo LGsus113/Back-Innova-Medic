@@ -5,15 +5,13 @@ import com.DW2.InnovaMedic.entity.Medico;
 public record MedicoResumenDTO(
         Integer idUsuario,
         String nombre,
-        String apellido,
-        String especialidad
+        String apellido
 ) {
     public static MedicoResumenDTO fromEntity(Medico medico) {
         return new MedicoResumenDTO(
                 medico.getIdUsuario(),
                 medico.getNombre(),
-                medico.getApellido(),
-                medico.getEspecialidad()
+                medico.getApellido()
         );
     }
 }

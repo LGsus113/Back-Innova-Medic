@@ -1,6 +1,7 @@
 package com.DW2.InnovaMedic.dto.registro;
 
 import com.DW2.InnovaMedic.entity.Usuario;
+import java.util.List;
 
 public record MedicoRegistroDTO(
         String nombre,
@@ -9,8 +10,8 @@ public record MedicoRegistroDTO(
         String telefono,
         String email,
         String contrasenia,
-        String especialidad,
         String numeroColegiado,
-        String codigoHospital
+        String codigoHospital,
+        List<Integer> idsEspecialidades
 ) {
 }

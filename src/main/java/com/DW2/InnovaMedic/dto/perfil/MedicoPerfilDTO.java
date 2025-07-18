@@ -7,7 +7,7 @@ public record MedicoPerfilDTO(
         Usuario.Sexo sexo,
         String telefono,
         String email,
-        String especialidad,
+        List<String> especialidad,
         String numeroColegiado,
         List<DisponibilidadMedicaDTO> disponibilidad
 ) {

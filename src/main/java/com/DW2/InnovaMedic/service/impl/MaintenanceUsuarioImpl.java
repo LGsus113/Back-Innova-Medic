@@ -3,10 +3,7 @@ package com.DW2.InnovaMedic.service.impl;
 import com.DW2.InnovaMedic.dto.perfil.DisponibilidadMedicaDTO;
 import com.DW2.InnovaMedic.dto.perfil.MedicoPerfilDTO;
 import com.DW2.InnovaMedic.dto.perfil.PacientePerfilDTO;
-import com.DW2.InnovaMedic.entity.DisponibilidadMedica;
-import com.DW2.InnovaMedic.entity.Medico;
-import com.DW2.InnovaMedic.entity.Paciente;
-import com.DW2.InnovaMedic.entity.Usuario;
+import com.DW2.InnovaMedic.entity.*;
 import com.DW2.InnovaMedic.repository.DisponibilidadMedicaRepository;
 import com.DW2.InnovaMedic.repository.UsuarioRepository;
 import com.DW2.InnovaMedic.service.MaintenanceUsuario;
@@ -32,6 +29,10 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
         if (usuario instanceof Medico medico) {
             List<DisponibilidadMedica> disponibilidades = disponibilidadMedicaRepository.findByMedico_IdUsuario(idUsuario);
 
+            List<String> nombresEspecialidad = medico.getEspecialidades().stream()
+                    .map(Especialidad::getNombreEspecialidad)
+                    .toList();
+
             List<DisponibilidadMedicaDTO> disponibilidadesDTO = disponibilidades.stream()
                     .map(d -> new DisponibilidadMedicaDTO(
                             d.getDiaSemana().name(),
@@ -44,7 +45,7 @@ public class MaintenanceUsuarioImpl implements MaintenanceUsuario {
                     medico.getSexo(),
                     medico.getTelefono(),
                     medico.getEmail(),
-                    medico.getEspecialidad(),
+                    nombresEspecialidad,
                     medico.getNumeroColegiado(),
                     disponibilidadesDTO
             );

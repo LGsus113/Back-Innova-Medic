@@ -9,6 +9,5 @@ import java.util.List;
 public interface MaintenanceMedico {
     void registrarMedicos(MedicoRegistroDTO medicoRegistroDTO);
     List<CitaDTO> obtenerCitasMedico(Integer id, String nombreUsuario, Cita.Estado estado);
-    List<String> obtenerEspecialidadesUnicas();
-    List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(String especialidad);
+    List<MedicoSegunEspecialidadDTO> listarMedicosPorEspecialidad(Integer idEspecialidad);
 }

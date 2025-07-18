@@ -26,6 +26,10 @@ public class Cita {
     @JoinColumn(name = "ID_PACIENTE", nullable = false)
     private Paciente paciente;
 
+    @ManyToOne
+    @JoinColumn(name = "ID_ESPECIALIDAD", nullable = false)
+    private Especialidad especialidad;
+
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 

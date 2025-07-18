@@ -19,6 +19,7 @@ import java.util.List;
 public class MaintenanceCitaImpl implements MaintenanceCita {
     private final MedicoRepository medicoRepository;
     private final PacienteRepository pacienteRepository;
+    private final EspecialidadRepository especialidadRepository;
     private final CitaRepository citaRepository;
     private final RecetaRepository recetaRepository;
     private final MedicamentoRecetaRepository medicamentoRecetaRepository;
@@ -56,10 +57,11 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
         }
     }
 
-    private Cita guardarCita(CitaRecetaVaciaDTO citaRecetaVaciaDTO, Medico medico, Paciente paciente) {
+    private Cita guardarCita(CitaRecetaVaciaDTO citaRecetaVaciaDTO, Medico medico, Paciente paciente, Especialidad especialidad) {
         Cita cita = new Cita();
         cita.setMedico(medico);
         cita.setPaciente(paciente);
+        cita.setEspecialidad(especialidad);
         cita.setFecha(citaRecetaVaciaDTO.fecha());
         cita.setHora(citaRecetaVaciaDTO.hora());
         cita.setNotasMedicas("aun no detallado");
@@ -166,8 +168,10 @@ public class MaintenanceCitaImpl implements MaintenanceCita {
                 .orElseThrow(() -> new IllegalArgumentException("Medico no encontrado"));
         Paciente paciente = pacienteRepository.findById(citaRecetaVaciaDTO.idPaciente())
                 .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado"));
+        Especialidad especialidad = especialidadRepository.findById(citaRecetaVaciaDTO.idEspecialidad())
+                .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada"));
 
-        Cita citaGuardada = guardarCita(citaRecetaVaciaDTO, medico, paciente);
+        Cita citaGuardada = guardarCita(citaRecetaVaciaDTO, medico, paciente, especialidad);
         guardarRecetaParaCita(citaRecetaVaciaDTO.fecha(), citaGuardada);
 
         return citaGuardada.getIdCitas();

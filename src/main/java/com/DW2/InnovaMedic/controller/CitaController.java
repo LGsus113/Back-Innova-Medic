@@ -72,11 +72,7 @@ public class CitaController {
                 actualizarCitaCompletaDTO.nombreMedico()
         );
 
-        try {
-            maintenancePdfExportService.generarPDFAsync(actualizarCitaCompletaDTO.id());
-        } catch (Exception e) {
-            throw new IllegalStateException("Error al inicar la generacion del PDF: " + e.getMessage());
-        }
+        maintenancePdfExportService.generarPDFAsync(actualizarCitaCompletaDTO.id());
 
         return ResponseUtil.success(Map.of(
                 "message", "Datos actualizados y medicamentos agregados",
